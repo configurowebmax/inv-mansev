@@ -94,14 +94,13 @@ body{font-family:'DM Sans',sans-serif;background:#0a0a0a;color:#f0f0f0;overflow-
           <i class="fa-solid fa-arrow-right-to-bracket"></i> Iniciar Sesión
         </button>
       </div>
-      <p class="text-center text-muted text-xs mt-6">Predeterminado: admin / admin123</p>
+      <p class="text-center text-muted text-xs mt-6">Acceso: masev / masev</p>
     </div>
   </div>
 </div>
 
 <!-- Contenedor de la Aplicación -->
 <div id="app-shell" class="hidden">
-  <!-- Overlay del Sidebar -->
   <div id="sidebar-overlay" class="overlay lg:hidden" onclick="Sidebar.close()"></div>
 
   <!-- Sidebar -->
@@ -142,7 +141,6 @@ body{font-family:'DM Sans',sans-serif;background:#0a0a0a;color:#f0f0f0;overflow-
 
   <!-- Área Principal -->
   <div id="main-area" class="main-area">
-    <!-- Barra Superior -->
     <header class="sticky top-0 z-30 bg-bg/80 backdrop-blur-xl border-b border-brd">
       <div class="flex items-center justify-between px-4 lg:px-8 py-3">
         <div class="flex items-center gap-3">
@@ -162,8 +160,6 @@ body{font-family:'DM Sans',sans-serif;background:#0a0a0a;color:#f0f0f0;overflow-
         </div>
       </div>
     </header>
-
-    <!-- Contenido -->
     <main id="content" class="p-4 lg:p-8"></main>
   </div>
 </div>
@@ -205,11 +201,14 @@ const DB = {
   get(key) { try { return JSON.parse(localStorage.getItem('sw_'+key)) || null; } catch { return null; } },
   set(key, val) { localStorage.setItem('sw_'+key, JSON.stringify(val)); },
   init() {
+    /* Limpiar usuarios anteriores para forzar la creación con las credenciales correctas */
+    localStorage.removeItem('sw_users');
+
     if (!this.get('users')) {
       (async()=>{
         const salt = genSalt();
-        const hash = await hashPassword('mansev', salt);
-        const users = [{id:genId(), username:'mansev', salt, passwordHash:hash, createdAt:now()}];
+        const hash = await hashPassword('masev', salt);
+        const users = [{id:genId(), username:'masev', salt, passwordHash:hash, createdAt:now()}];
         DB.set('users', users);
       })();
     }
@@ -376,7 +375,6 @@ function renderDashboard() {
   const wallet = DB.getWallet().balance;
   const lowStock = products.filter(p=>p.stock<10);
 
-  /* Últimos 7 días */
   const last7 = [];
   for(let i=6;i>=0;i--){
     const d = new Date(); d.setDate(d.getDate()-i);
@@ -387,7 +385,6 @@ function renderDashboard() {
     last7.push({label,sales:daySales,expenses:dayExp});
   }
 
-  /* Transacciones recientes */
   const allTx = [
     ...sales.map(s=>({type:'sale',id:s.id,date:s.date,desc:`Venta #${s.id.slice(-5).toUpperCase()}`,amount:s.total,profit:s.total-s.totalCost})),
     ...expenses.map(e=>({type:'expense',id:e.id,date:e.date,desc:e.description||e.category,amount:e.amount}))
@@ -512,7 +509,6 @@ function renderDashboard() {
     </div>
   `;
 
-  /* Gráfica: Últimos 7 días */
   const ctx7 = document.getElementById('chart-7days');
   if(ctx7) {
     dashboardCharts['7days'] = new Chart(ctx7, {
@@ -933,7 +929,6 @@ function renderAnalytics() {
   const sales=DB.getSales(), expenses=DB.getExpenses(), products=DB.getProducts();
   const cm=currentMonth();
 
-  /* Últimos 30 días */
   const last30=[];
   for(let i=29;i>=0;i--){
     const d=new Date();d.setDate(d.getDate()-i);
@@ -945,14 +940,12 @@ function renderAnalytics() {
     last30.push({label,sales:daySales,profit:dayProfit,expenses:dayExp});
   }
 
-  /* Gastos por categoría */
   const catMap={};
   expenses.forEach(e=>{catMap[e.category]=(catMap[e.category]||0)+e.amount;});
   const catLabels=Object.keys(catMap);
   const catValues=Object.values(catMap);
   const catColors=['#f59e0b','#ef4444','#10b981','#3b82f6','#8b5cf6','#ec4899','#06b6d4','#f97316','#6366f1'];
 
-  /* Productos más vendidos */
   const prodRev={};
   sales.forEach(s=>s.items.forEach(item=>{
     if(!prodRev[item.productId])prodRev[item.productId]={name:item.name,revenue:0,qty:0};
@@ -961,7 +954,6 @@ function renderAnalytics() {
   }));
   const topProducts=Object.values(prodRev).sort((a,b)=>b.revenue-a.revenue).slice(0,6);
 
-  /* Comparación mensual */
   const thisMonthSales=sales.filter(s=>s.date.startsWith(cm)).reduce((a,s)=>a+s.total,0);
   const thisMonthProfit=sales.filter(s=>s.date.startsWith(cm)).reduce((a,s)=>a+(s.total-s.totalCost),0);
   const thisMonthExp=expenses.filter(e=>e.date.startsWith(cm)).reduce((a,e)=>a+e.amount,0);
@@ -979,7 +971,6 @@ function renderAnalytics() {
       <p class="text-muted text-sm">Perspectivas sobre el rendimiento de su negocio</p>
     </div>
 
-    <!-- Tarjetas de comparación mensual -->
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
       <div class="stat-card fade-up fade-up-1" style="--card-accent:#10b981">
         <div class="text-muted text-xs font-medium uppercase tracking-wider mb-2">Ventas del Mes</div>
@@ -1004,7 +995,6 @@ function renderAnalytics() {
       </div>
     </div>
 
-    <!-- Gráficas fila 1 -->
     <div class="grid grid-cols-1 xl:grid-cols-2 gap-4 mb-6">
       <div class="stat-card fade-up fade-up-3" style="--card-accent:#10b981">
         <h3 class="font-display font-bold text-sm mb-4">Tendencia de Ventas y Ganancias (30 Días)</h3>
@@ -1018,7 +1008,6 @@ function renderAnalytics() {
       </div>
     </div>
 
-    <!-- Gráficas fila 2 -->
     <div class="grid grid-cols-1 xl:grid-cols-2 gap-4">
       <div class="stat-card fade-up fade-up-4" style="--card-accent:#3b82f6">
         <h3 class="font-display font-bold text-sm mb-4">Productos Más Vendidos por Ingresos</h3>
@@ -1033,7 +1022,6 @@ function renderAnalytics() {
     </div>
   `;
 
-  /* Gráfica: Tendencia */
   const ctxTrend=document.getElementById('chart-trend');
   if(ctxTrend){
     analyticsCharts['trend']=new Chart(ctxTrend,{
@@ -1052,7 +1040,6 @@ function renderAnalytics() {
     });
   }
 
-  /* Gráfica: Categorías de Gastos */
   const ctxCat=document.getElementById('chart-categories');
   if(ctxCat&&catLabels.length>0){
     analyticsCharts['categories']=new Chart(ctxCat,{
@@ -1064,7 +1051,6 @@ function renderAnalytics() {
     });
   }
 
-  /* Gráfica: Productos Top */
   const ctxProd=document.getElementById('chart-products');
   if(ctxProd&&topProducts.length>0){
     analyticsCharts['products']=new Chart(ctxProd,{
@@ -1077,7 +1063,6 @@ function renderAnalytics() {
     });
   }
 
-  /* Gráfica: Balance Neto Diario */
   const ctxNet=document.getElementById('chart-net');
   if(ctxNet){
     analyticsCharts['net']=new Chart(ctxNet,{
@@ -1102,7 +1087,6 @@ function renderSettings() {
       <p class="text-muted text-sm">Administre su cuenta y los datos de la aplicación</p>
     </div>
     <div class="max-w-lg space-y-6">
-      <!-- Información de Cuenta -->
       <div class="bg-card border border-brd rounded-xl p-6">
         <h3 class="font-display font-bold text-sm mb-4 flex items-center gap-2"><i class="fa-solid fa-user text-accent text-xs"></i>Cuenta</h3>
         <div class="space-y-3">
@@ -1111,7 +1095,6 @@ function renderSettings() {
         </div>
       </div>
 
-      <!-- Cambiar Contraseña -->
       <div class="bg-card border border-brd rounded-xl p-6">
         <h3 class="font-display font-bold text-sm mb-4 flex items-center gap-2"><i class="fa-solid fa-lock text-accent text-xs"></i>Cambiar Contraseña</h3>
         <div class="space-y-4">
@@ -1126,7 +1109,6 @@ function renderSettings() {
         </div>
       </div>
 
-      <!-- Zona de Peligro -->
       <div class="bg-card border border-danger/30 rounded-xl p-6">
         <h3 class="font-display font-bold text-sm mb-2 flex items-center gap-2 text-danger"><i class="fa-solid fa-triangle-exclamation text-xs"></i>Zona de Peligro</h3>
         <p class="text-muted text-xs mb-4">Estas acciones son irreversibles. Proceda con precaución.</p>
@@ -1137,7 +1119,6 @@ function renderSettings() {
         </div>
       </div>
 
-      <!-- Acerca de -->
       <div class="bg-card border border-brd rounded-xl p-6">
         <h3 class="font-display font-bold text-sm mb-3">Acerca de StockWallet</h3>
         <p class="text-muted text-xs leading-relaxed">StockWallet es un sistema de control de inventario y gastos. Las ventas acreditan su billetera, los gastos la debitan. La ganancia diaria se calcula como los ingresos por ventas menos el costo neto de los productos vendidos. Todos los datos se almacenan localmente en su navegador usando localStorage. Para despliegue en producción, esto se conectaría a un backend PHP/MySQL con validación adecuada del lado del servidor, sentencias SQL preparadas, protección CSRF y gestión de sesiones.</p>
