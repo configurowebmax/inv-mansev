@@ -466,7 +466,7 @@ function renderDashboard() {
       },
       options: {
         responsive:true, maintainAspectRatio:false,
-        plugins:{legend:{position:'bottom',labels:{color:'#737373',padding:16,usePointStyle:true,pointStyleWidth:8,font:{size:11}}},
+        plugins:{legend:{position:'bottom',labels:{color:'#737373',padding:16,usePointStyle:true,pointStyleWidth:8,font:{size:11}}}},
         scales:{
           x:{grid:{display:false},ticks:{color:'#525252',font:{size:11}}},
           y:{grid:{color:'#1a1a1a'},ticks:{color:'#525252',font:{size:11},callback:v=>'$'+v},beginAtZero:true}
@@ -1007,7 +1007,7 @@ function renderAnalytics() {
 
   const chartOpts = {
     responsive:true, maintainAspectRatio:false, interaction:{mode:'index',intersect:false},
-    plugins:{legend:{position:'bottom',labels:{color:'#737373',padding:16,usePointStyle:true,pointStyleWidth:8,font:{size:11,...cf}}},
+    plugins:{legend:{position:'bottom',labels:{color:'#737373',padding:16,usePointStyle:true,pointStyleWidth:8,font:{size:11,...cf}}}},
     scales:{
       x:{grid:{display:false},ticks:{color:'#525252',font:{size:10},maxTicksLimit:8}},
       y:{grid:{color:'#1a1a1a'},ticks:{color:'#525252',font:{size:10},callback:v=>'$'+v},beginAtZero:true}
@@ -1031,8 +1031,10 @@ function renderAnalytics() {
     analyticsCharts.cat = new Chart(c2, {
       type:'doughnut',
       data:{labels:catL, datasets:[{data:catV, backgroundColor:catC.slice(0,catL.length), borderWidth:0, hoverOffset:8}]},
-      options:{responsive:true, maintainAspectRatio:false, cutout:'65%',
+      options:{
+        responsive:true, maintainAspectRatio:false, cutout:'65%',
         plugins:{legend:{position:'right',labels:{color:'#a3a3a3', padding:10, usePointStyle:true, pointStyleWidth:8, font:{size:11,...cf}}}}
+      }
     });
   }
 
@@ -1041,12 +1043,14 @@ function renderAnalytics() {
     analyticsCharts.prod = new Chart(c3, {
       type:'bar',
       data:{labels:topP.map(p => p.name), datasets:[{label:'Ingresos',data:topP.map(p => p.revenue), backgroundColor:'rgba(59,130,246,0.7)', borderRadius:6, borderSkipped:false}]},
-      options:{indexAxis:'y', responsive:true, maintainAspectRatio:false,
+      options:{
+        indexAxis:'y', responsive:true, maintainAspectRatio:false,
         plugins:{legend:{display:false}},
         scales:{
           x:{grid:{color:'#1a1a1a'}, ticks:{color:'#525252', font:{size:10}, callback:v=>'$'+v}},
-          y:{grid:{display:false}, ticks:{color:'#a3a3a3', font:{size:11,...cf}}
-        }}
+          y:{grid:{display:false}, ticks:{color:'#a3a3a3', font:{size:11,...cf}}}
+        }
+      }
     });
   }
 
@@ -1060,12 +1064,14 @@ function renderAnalytics() {
         backgroundColor:last30.map(d => (d.sales-d.expenses)>=0 ? 'rgba(6,182,212,0.7)' : 'rgba(239,68,68,0.7)'),
         borderRadius:4, borderSkipped:false
       }]},
-      options:{responsive:true, maintainAspectRatio:false,
+      options:{
+        responsive:true, maintainAspectRatio:false,
         plugins:{legend:{display:false}},
         scales:{
           x:{grid:{display:false}, ticks:{color:'#525252', font:{size:10}, maxTicksLimit:8}},
           y:{grid:{color:'#1a1a1a'}, ticks:{color:'#525252', font:{size:10}, callback:v=>'$'+v}}
-        }}
+        }
+      }
     });
   }
 }
