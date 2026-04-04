@@ -130,200 +130,999 @@ body{font-family:'DM Sans',sans-serif;background:#0a0a0a;color:#f0f0f0;overflow-
 <div id="modal-backdrop" class="modal-backdrop"><div id="modal-box" class="modal-box"></div></div>
 
 <script>
-const $=s=>document.querySelector(s),$$=s=>document.querySelectorAll(s);
-const genId=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,8);
-const today=()=>new Date().toISOString().split('T')[0];
-const now=()=>new Date().toISOString();
-const fmtCur=n=>'$'+Number(n||0).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
-const fmtDate=d=>new Date(d).toLocaleDateString('es-ES',{day:'numeric',month:'short',year:'numeric'});
-const fmtDateTime=d=>new Date(d).toLocaleString('es-ES',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
-const currentMonth=()=>today().slice(0,7);
-const WALLET_COLORS=[{value:'#10b981',name:'Verde'},{value:'#8b5cf6',name:'Morado'},{value:'#3b82f6',name:'Azul'},{value:'#f59e0b',name:'Ámbar'},{value:'#ef4444',name:'Rojo'},{value:'#ec4899',name:'Rosa'},{value:'#06b6d4',name:'Cian'},{value:'#f97316',name:'Naranja'}];
+/* ===== UTILIDADES ===== */
+const $ = s => document.querySelector(s);
+const $$ = s => document.querySelectorAll(s);
+const genId = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+const today = () => new Date().toISOString().split('T')[0];
+const now = () => new Date().toISOString();
+const fmtCur = n => '$' + Number(n||0).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+const fmtDate = d => new Date(d).toLocaleDateString('es-ES',{day:'numeric',month:'short',year:'numeric'});
+const fmtDateTime = d => new Date(d).toLocaleString('es-ES',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
+const currentMonth = () => today().slice(0,7);
 
-async function hashPassword(p,s){const e=new TextEncoder();const b=await crypto.subtle.digest('SHA-256',e.encode(s+p+'SW_SALT_2024'));return Array.from(new Uint8Array(b)).map(x=>x.toString(16).padStart(2,'0')).join('')}
-function genSalt(){return Array.from(crypto.getRandomValues(new Uint8Array(16))).map(b=>b.toString(16).padStart(2,'0')).join('')}
+const WALLET_COLORS = [
+  {value:'#10b981',name:'Verde'},{value:'#8b5cf6',name:'Morado'},
+  {value:'#3b82f6',name:'Azul'},{value:'#f59e0b',name:'Ámbar'},
+  {value:'#ef4444',name:'Rojo'},{value:'#ec4899',name:'Rosa'},
+  {value:'#06b6d4',name:'Cian'},{value:'#f97316',name:'Naranja'}
+];
 
-const DB={
-  get(k){try{return JSON.parse(localStorage.getItem('sw_'+k))||null}catch{return null}},
-  set(k,v){localStorage.setItem('sw_'+k,JSON.stringify(v))},
-  init(){
-    localStorage.removeItem('sw_users');
-    if(!this.get('wallets')){
-      let initBal=0;const old=this.get('wallet');if(old)initBal=old.balance||0;
-      this.set('wallets',[{id:genId(),name:'Efectivo',balance:initBal,color:'#10b981',createdAt:now()},{id:genId(),name:'Nequi',balance:0,color:'#8b5cf6',createdAt:now()}]);
+async function hashPassword(p, s) {
+  const e = new TextEncoder();
+  const b = await crypto.subtle.digest('SHA-256', e.encode(s + p + 'SW_SALT_2024'));
+  return Array.from(new Uint8Array(b)).map(x => x.toString(16).padStart(2,'0')).join('');
+}
+function genSalt() {
+  return Array.from(crypto.getRandomValues(new Uint8Array(16))).map(b => b.toString(16).padStart(2,'0')).join('');
+}
+
+/* ===== BASE DE DATOS ===== */
+const DB = {
+  get(k) { try { return JSON.parse(localStorage.getItem('sw_'+k)) || null; } catch { return null; } },
+  set(k, v) { localStorage.setItem('sw_'+k, JSON.stringify(v)); },
+
+  async init() {
+    /* Solo crear usuario si no existe */
+    if (!this.get('users')) {
+      const salt = genSalt();
+      const hash = await hashPassword('masev', salt);
+      this.set('users', [{id:genId(), username:'masev', salt, passwordHash:hash, createdAt:now()}]);
+    }
+
+    /* Migrar billetera vieja a nuevas billeteras */
+    if (!this.get('wallets')) {
+      let initBal = 0;
+      const old = this.get('wallet');
+      if (old) initBal = old.balance || 0;
+      this.set('wallets', [
+        {id:genId(), name:'Efectivo', balance:initBal, color:'#10b981', createdAt:now()},
+        {id:genId(), name:'Nequi', balance:0, color:'#8b5cf6', createdAt:now()}
+      ]);
       localStorage.removeItem('sw_wallet');
     }
-    if(!this.get('products'))this.set('products',[
-      {id:genId(),name:'Camiseta Gráfica',sku:'CAM-001',costPrice:8,sellingPrice:22,stock:50,createdAt:now()},
-      {id:genId(),name:'Taza Cerámica',sku:'TZA-001',costPrice:3.50,sellingPrice:14,stock:35,createdAt:now()},
-      {id:genId(),name:'Poster Arte Impreso',sku:'PST-001',costPrice:2.25,sellingPrice:18,stock:80,createdAt:now()},
-      {id:genId(),name:'Paquete de Stickers (5pz)',sku:'STK-001',costPrice:0.80,sellingPrice:6,stock:200,createdAt:now()},
-      {id:genId(),name:'Sudadera Bordada',sku:'SUD-001',costPrice:22,sellingPrice:58,stock:25,createdAt:now()}
-    ]);
-    if(!this.get('sales'))this.set('sales',[]);
-    if(!this.get('expenses'))this.set('expenses',[]);
-    if(!this.get('purchases'))this.set('purchases',[]);
-    if(!this.get('walletOps'))this.set('walletOps',[]);
-    if(!this.get('users')){(async()=>{const s=genSalt(),h=await hashPassword('masev',s);this.set('users',[{id:genId(),username:'masev',salt:s,passwordHash:h,createdAt:now()}])})()}
+
+    if (!this.get('products')) {
+      this.set('products', [
+        {id:genId(), name:'Camiseta Gráfica', sku:'CAM-001', costPrice:8, sellingPrice:22, stock:50, createdAt:now()},
+        {id:genId(), name:'Taza Cerámica', sku:'TZA-001', costPrice:3.50, sellingPrice:14, stock:35, createdAt:now()},
+        {id:genId(), name:'Poster Arte Impreso', sku:'PST-001', costPrice:2.25, sellingPrice:18, stock:80, createdAt:now()},
+        {id:genId(), name:'Paquete de Stickers (5pz)', sku:'STK-001', costPrice:0.80, sellingPrice:6, stock:200, createdAt:now()},
+        {id:genId(), name:'Sudadera Bordada', sku:'SUD-001', costPrice:22, sellingPrice:58, stock:25, createdAt:now()}
+      ]);
+    }
+    if (!this.get('sales')) this.set('sales', []);
+    if (!this.get('expenses')) this.set('expenses', []);
+    if (!this.get('purchases')) this.set('purchases', []);
+    if (!this.get('walletOps')) this.set('walletOps', []);
   },
-  getWallets(){return this.get('wallets')||[]},
-  addWallet(w){const ws=this.getWallets();w.id=genId();w.createdAt=now();ws.push(w);this.set('wallets',ws);return w},
-  updateWallet(id,data){const ws=this.getWallets();const i=ws.findIndex(w=>w.id===id);if(i>-1){Object.assign(ws[i],data,{id:id,createdAt:ws[i].createdAt});this.set('wallets',ws);return ws[i]}return null},
-  deleteWallet(id){this.set('wallets',this.getWallets().filter(w=>w.id!==id))},
-  creditWallet(id,amt){const ws=this.getWallets();const i=ws.findIndex(w=>w.id===id);if(i>-1){ws[i].balance+=amt;this.set('wallets',ws)}return amt},
-  debitWallet(id,amt){const ws=this.getWallets();const i=ws.findIndex(w=>w.id===id);if(i>-1){ws[i].balance-=amt;this.set('wallets',ws)}return amt},
-  getTotalBalance(){return this.getWallets().reduce((a,w)=>a+w.balance,0)},
-  getWalletName(id){const w=this.getWallets().find(x=>x.id===id);return w?w.name:'(Eliminada)'},
-  getWalletColor(id){const w=this.getWallets().find(x=>x.id===id);return w?w.color:'#525252'},
-  getProducts(){return this.get('products')||[]},
-  addProduct(p){const ps=this.getProducts();p.id=genId();p.createdAt=now();ps.push(p);this.set('products',ps);return p},
-  updateProduct(id,data){const ps=this.getProducts();const i=ps.findIndex(p=>p.id===id);if(i>-1){Object.assign(ps[i],data,{id,createdAt:ps[i].createdAt});this.set('products',ps);return ps[i]}return null},
-  deleteProduct(id){this.set('products',this.getProducts().filter(p=>p.id!==id))},
-  getSales(){return this.get('sales')||[]},
-  addSale(s){const ss=this.getSales();s.id=genId();s.date=now();ss.push(s);this.set('sales',ss);return s},
-  getExpenses(){return this.get('expenses')||[]},
-  addExpense(e){const es=this.getExpenses();e.id=genId();e.date=now();es.push(e);this.set('expenses',es);return e},
-  getPurchases(){return this.get('purchases')||[]},
-  addPurchase(p){const ps=this.getPurchases();p.id=genId();p.date=now();ps.push(p);this.set('purchases',ps);return p},
-  getWalletOps(){return this.get('walletOps')||[]},
-  addWalletOp(o){const os=this.getWalletOps();o.id=genId();o.date=now();os.push(o);this.set('walletOps',os);return o},
-  getUsers(){return this.get('users')||[]},
-  findUser(u){return this.getUsers().find(x=>x.username===u)},
-  updateUser(id,data){const us=this.getUsers();const i=us.findIndex(u=>u.id===id);if(i>-1){Object.assign(us[i],data);this.set('users',us)}}
+
+  /* Billeteras */
+  getWallets() { return this.get('wallets') || []; },
+  addWallet(w) { const ws=this.getWallets(); w.id=genId(); w.createdAt=now(); ws.push(w); this.set('wallets',ws); return w; },
+  updateWallet(id,data) { const ws=this.getWallets(); const i=ws.findIndex(w=>w.id===id); if(i>-1){Object.assign(ws[i],data,{id,createdAt:ws[i].createdAt}); this.set('wallets',ws); return ws[i]} return null; },
+  deleteWallet(id) { this.set('wallets',this.getWallets().filter(w=>w.id!==id)); },
+  creditWallet(id,amt) { const ws=this.getWallets(); const i=ws.findIndex(w=>w.id===id); if(i>-1){ws[i].balance+=amt; this.set('wallets',ws)} },
+  debitWallet(id,amt) { const ws=this.getWallets(); const i=ws.findIndex(w=>w.id===id); if(i>-1){ws[i].balance-=amt; this.set('wallets',ws)} },
+  getTotalBalance() { return this.getWallets().reduce((a,w)=>a+w.balance,0); },
+  getWalletName(id) { const w=this.getWallets().find(x=>x.id===id); return w ? w.name : '(Eliminada)'; },
+  getWalletColor(id) { const w=this.getWallets().find(x=>x.id===id); return w ? w.color : '#525252'; },
+
+  /* Productos */
+  getProducts() { return this.get('products') || []; },
+  addProduct(p) { const ps=this.getProducts(); p.id=genId(); p.createdAt=now(); ps.push(p); this.set('products',ps); return p; },
+  updateProduct(id,data) { const ps=this.getProducts(); const i=ps.findIndex(p=>p.id===id); if(i>-1){Object.assign(ps[i],data,{id,createdAt:ps[i].createdAt}); this.set('products',ps); return ps[i]} return null; },
+  deleteProduct(id) { this.set('products',this.getProducts().filter(p=>p.id!==id)); },
+
+  /* Ventas */
+  getSales() { return this.get('sales') || []; },
+  addSale(s) { const ss=this.getSales(); s.id=genId(); s.date=now(); ss.push(s); this.set('sales',ss); return s; },
+
+  /* Gastos */
+  getExpenses() { return this.get('expenses') || []; },
+  addExpense(e) { const es=this.getExpenses(); e.id=genId(); e.date=now(); es.push(e); this.set('expenses',es); return e; },
+
+  /* Compras de stock */
+  getPurchases() { return this.get('purchases') || []; },
+  addPurchase(p) { const ps=this.getPurchases(); p.id=genId(); p.date=now(); ps.push(p); this.set('purchases',ps); return p; },
+
+  /* Operaciones de billetera */
+  getWalletOps() { return this.get('walletOps') || []; },
+  addWalletOp(o) { const os=this.getWalletOps(); o.id=genId(); o.date=now(); os.push(o); this.set('walletOps',os); return o; },
+
+  /* Usuarios */
+  getUsers() { return this.get('users') || []; },
+  findUser(u) { return this.getUsers().find(x=>x.username===u); },
+  updateUser(id,data) { const us=this.getUsers(); const i=us.findIndex(u=>u.id===id); if(i>-1){Object.assign(us[i],data); this.set('users',us);} }
 };
 
-const Auth={
-  user:null,
-  async login(u,p){const user=DB.findUser(u);if(!user)return{ok:false,msg:'Usuario no encontrado'};const h=await hashPassword(p,user.salt);if(h!==user.passwordHash)return{ok:false,msg:'Contraseña incorrecta'};this.user=user;sessionStorage.setItem('sw_session',user.id);return{ok:true}},
-  logout(){this.user=null;sessionStorage.removeItem('sw_session')},
-  restore(){const s=sessionStorage.getItem('sw_session');if(s){this.user=DB.getUsers().find(u=>u.id===s)||null}}
+/* ===== AUTENTICACIÓN ===== */
+const Auth = {
+  user: null,
+  async login(u, p) {
+    const user = DB.findUser(u);
+    if (!user) return {ok:false, msg:'Usuario no encontrado'};
+    const h = await hashPassword(p, user.salt);
+    if (h !== user.passwordHash) return {ok:false, msg:'Contraseña incorrecta'};
+    this.user = user;
+    sessionStorage.setItem('sw_session', user.id);
+    return {ok:true};
+  },
+  logout() { this.user=null; sessionStorage.removeItem('sw_session'); },
+  restore() {
+    const s = sessionStorage.getItem('sw_session');
+    if (s) { this.user = DB.getUsers().find(u => u.id===s) || null; }
+  }
 };
 
-const Toast={show(msg,type='info'){const icons={success:'fa-check-circle',error:'fa-circle-xmark',info:'fa-circle-info',warn:'fa-triangle-exclamation'};const el=document.createElement('div');el.className=`toast toast-${type}`;el.innerHTML=`<i class="fa-solid ${icons[type]||icons.info}"></i><span>${msg}</span>`;$('#toast-container').appendChild(el);setTimeout(()=>{el.style.animation='slideOut .3s ease forwards';setTimeout(()=>el.remove(),300)},3000)}};
-
-const Modal={
-  show(h){$('#modal-box').innerHTML=h;$('#modal-backdrop').classList.add('show')},
-  close(){$('#modal-backdrop').classList.remove('show')},
-  confirm(msg,fn){this.show(`<h3 class="font-display font-bold text-lg mb-3">Confirmar Acción</h3><p class="text-muted text-sm mb-6">${msg}</p><div class="flex gap-3 justify-end"><button class="btn btn-ghost" onclick="Modal.close()">Cancelar</button><button class="btn btn-danger" id="modal-confirm-btn">Confirmar</button></div>`);$('#modal-confirm-btn').onclick=()=>{fn();Modal.close()}}
+/* ===== TOAST ===== */
+const Toast = {
+  show(msg, type='info') {
+    const icons = {success:'fa-check-circle',error:'fa-circle-xmark',info:'fa-circle-info',warn:'fa-triangle-exclamation'};
+    const el = document.createElement('div');
+    el.className = 'toast toast-' + type;
+    el.innerHTML = '<i class="fa-solid '+(icons[type]||icons.info)+'"></i><span>'+msg+'</span>';
+    $('#toast-container').appendChild(el);
+    setTimeout(() => { el.style.animation='slideOut .3s ease forwards'; setTimeout(()=>el.remove(),300); }, 3000);
+  }
 };
- $('#modal-backdrop').addEventListener('click',e=>{if(e.target===$('#modal-backdrop'))Modal.close()});
 
-const Sidebar={open(){$('#sidebar').classList.add('open');$('#sidebar-overlay').classList.add('show')},close(){$('#sidebar').classList.remove('open');$('#sidebar-overlay').classList.remove('show')},toggle(){$('#sidebar').classList.contains('open')?this.close():this.open()},setActive(p){$$('#sidebar-nav .nav-item').forEach(n=>{n.classList.toggle('active',n.dataset.page===p)})}};
- $('#menu-btn').addEventListener('click',()=>Sidebar.toggle());
+/* ===== MODAL ===== */
+const Modal = {
+  show(h) { $('#modal-box').innerHTML=h; $('#modal-backdrop').classList.add('show'); },
+  close() { $('#modal-backdrop').classList.remove('show'); },
+  confirm(msg, fn) {
+    this.show(
+      '<h3 class="font-display font-bold text-lg mb-3">Confirmar Acción</h3>' +
+      '<p class="text-muted text-sm mb-6">'+msg+'</p>' +
+      '<div class="flex gap-3 justify-end">' +
+        '<button class="btn btn-ghost" onclick="Modal.close()">Cancelar</button>' +
+        '<button class="btn btn-danger" id="modal-confirm-btn">Confirmar</button>' +
+      '</div>'
+    );
+    $('#modal-confirm-btn').onclick = () => { fn(); Modal.close(); };
+  }
+};
+ $('#modal-backdrop').addEventListener('click', e => { if(e.target===$('#modal-backdrop')) Modal.close(); });
 
-function updateWalletDisplay(){const b=fmtCur(DB.getTotalBalance());$('#sidebar-wallet').textContent=b;$('#topbar-wallet').textContent=b}
-function walletOpts(selId,idAttr){const ws=DB.getWallets();if(!ws.length)return'<p class="text-danger text-xs mt-1">Cree una billetera primero</p>';return`<select id="${idAttr}" class="input-field">${ws.map(w=>`<option value="${w.id}" ${w.id===selId?'selected':''}>${w.name} (${fmtCur(w.balance)})</option>`).join('')}</select>`}
-let selectedColor='#10b981';
+/* ===== SIDEBAR ===== */
+const Sidebar = {
+  open() { $('#sidebar').classList.add('open'); $('#sidebar-overlay').classList.add('show'); },
+  close() { $('#sidebar').classList.remove('open'); $('#sidebar-overlay').classList.remove('show'); },
+  toggle() { this.classList.contains('open') ? this.close() : this.open(); },
+  setActive(p) { $$('#sidebar-nav .nav-item').forEach(n => n.classList.toggle('active', n.dataset.page===p)); }
+};
+ $('#menu-btn').addEventListener('click', () => Sidebar.toggle());
 
-let currentPage='dashboard';
-const pageTitles={dashboard:'Panel Principal',wallets:'Billeteras',inventory:'Inventario','buy-stock':'Comprar Stock','new-sale':'Nueva Venta','new-expense':'Nuevo Gasto',transactions:'Historial',analytics:'Análisis',settings:'Configuración'};
-function navigate(page){currentPage=page;$('#page-title').textContent=pageTitles[page]||page;Sidebar.setActive(page);Sidebar.close();updateWalletDisplay();const r={dashboard:renderDashboard,wallets:renderWallets,inventory:renderInventory,'buy-stock':renderBuyStock,'new-sale':renderNewSale,'new-expense':renderNewExpense,transactions:renderTransactions,analytics:renderAnalytics,settings:renderSettings};if(r[page])r[page]()}
- $$('#sidebar-nav .nav-item').forEach(n=>{n.addEventListener('click',()=>navigate(n.dataset.page))});
- $('#logout-btn').addEventListener('click',()=>{Auth.logout();showLogin()});
-
-function showLogin(){$('#login-screen').classList.remove('hidden');$('#app-shell').classList.add('hidden');$('#login-user').value='';$('#login-pass').value='';$('#login-error').classList.add('hidden')}
-function showApp(){$('#login-screen').classList.add('hidden');$('#app-shell').classList.remove('hidden');navigate('dashboard')}
- $('#login-btn').addEventListener('click',async()=>{const u=$('#login-user').value.trim(),p=$('#login-pass').value;if(!u||!p){$('#login-error').textContent='Complete todos los campos';$('#login-error').classList.remove('hidden');return}const r=await Auth.login(u,p);if(r.ok)showApp();else{$('#login-error').textContent=r.msg;$('#login-error').classList.remove('hidden')}});
- $('#login-pass').addEventListener('keydown',e=>{if(e.key==='Enter')$('#login-btn').click()});
- $('#login-user').addEventListener('keydown',e=>{if(e.key==='Enter')$('#login-pass').focus()});
-
-let dashboardCharts={};
-function destroyDC(){Object.values(dashboardCharts).forEach(c=>{if(c)c.destroy()});dashboardCharts={}}
-
-function renderDashboard(){
-  destroyDC();const sales=DB.getSales(),expenses=DB.getExpenses(),wallets=DB.getWallets();const td=today(),cm=currentMonth();
-  const todaySales=sales.filter(s=>s.date.startsWith(td));const dailySales=todaySales.reduce((a,s)=>a+s.total,0);const dailyCost=todaySales.reduce((a,s)=>a+s.totalCost,0);const dailyProfit=dailySales-dailyCost;
-  const monthlySales=sales.filter(s=>s.date.startsWith(cm)).reduce((a,s)=>a+s.total,0);const dailyExpenses=expenses.filter(e=>e.date.startsWith(td)).reduce((a,e)=>a+e.amount,0);const totalBal=DB.getTotalBalance();const lowStock=DB.getProducts().filter(p=>p.stock<10);
-  const last7=[];for(let i=6;i>=0;i--){const d=new Date();d.setDate(d.getDate()-i);const ds=d.toISOString().split('T')[0];const lb=d.toLocaleDateString('es-ES',{weekday:'short'});last7.push({label:lb,sales:sales.filter(s=>s.date.startsWith(ds)).reduce((a,s)=>a+s.total,0),expenses:expenses.filter(e=>e.date.startsWith(ds)).reduce((a,e)=>a+e.amount)})}
-  const allTx=[...sales.map(s=>({type:'sale',id:s.id,date:s.date,desc:'Venta #'+s.id.slice(-5).toUpperCase(),amount:s.total,profit:s.total-s.totalCost,walletId:s.walletId})),...expenses.map(e=>({type:'expense',id:e.id,date:e.date,desc:e.description||e.category,amount:e.amount,walletId:e.walletId})),...DB.getPurchases().map(p=>({type:'purchase',id:p.id,date:p.date,desc:'Compra: '+p.productName+' x'+p.quantity,amount:p.totalCost,walletId:p.walletId}))].sort((a,b)=>new Date(b.date)-new Date(a.date)).slice(0,8);
-
-  $('#content').innerHTML=`
-    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-6">
-      <div class="stat-card fade-up fade-up-1" style="--card-accent:#f59e0b"><div class="flex items-center justify-between mb-3"><span class="text-muted text-xs font-medium uppercase tracking-wider">Saldo Total</span><div class="w-8 h-8 rounded-lg bg-accent/10 flex items-center justify-center"><i class="fa-solid fa-wallet text-accent text-xs"></i></div></div><div class="font-display font-bold text-2xl ${totalBal<0?'text-danger':'text-accent'}">${fmtCur(totalBal)}</div><div class="text-muted text-xs mt-1">${wallets.length} billetera${wallets.length!==1?'s':''}</div></div>
-      <div class="stat-card fade-up fade-up-2" style="--card-accent:#10b981"><div class="flex items-center justify-between mb-3"><span class="text-muted text-xs font-medium uppercase tracking-wider">Ventas de Hoy</span><div class="w-8 h-8 rounded-lg bg-success/10 flex items-center justify-center"><i class="fa-solid fa-arrow-trend-up text-success text-xs"></i></div></div><div class="font-display font-bold text-2xl text-success">${fmtCur(dailySales)}</div><div class="text-muted text-xs mt-1">${todaySales.length} transacción${todaySales.length!==1?'es':''}</div></div>
-      <div class="stat-card fade-up fade-up-3" style="--card-accent:#ef4444"><div class="flex items-center justify-between mb-3"><span class="text-muted text-xs font-medium uppercase tracking-wider">Gastos de Hoy</span><div class="w-8 h-8 rounded-lg bg-danger/10 flex items-center justify-center"><i class="fa-solid fa-arrow-trend-down text-danger text-xs"></i></div></div><div class="font-display font-bold text-2xl text-danger">${fmtCur(dailyExpenses)}</div></div>
-      <div class="stat-card fade-up fade-up-4" style="--card-accent:#8b5cf6"><div class="flex items-center justify-between mb-3"><span class="text-muted text-xs font-medium uppercase tracking-wider">Ganancia de Hoy</span><div class="w-8 h-8 rounded-lg bg-purple-500/10 flex items-center justify-center"><i class="fa-solid fa-chart-simple text-purple-400 text-xs"></i></div></div><div class="font-display font-bold text-2xl ${dailyProfit>=0?'text-purple-400':'text-danger'}">${fmtCur(dailyProfit)}</div><div class="text-muted text-xs mt-1">Ventas menos costo de productos</div></div>
-    </div>
-    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-6">
-      ${wallets.map((w,i)=>'<div class="stat-card fade-up fade-up-'+Math.min(i+1,5)+'" style="--card-accent:'+w.color+';border-left:3px solid '+w.color+'"><div class="flex items-center justify-between mb-2"><span class="text-sm font-medium">'+w.name+'</span><div class="w-3 h-3 rounded-full" style="background:'+w.color+'"></div></div><div class="font-display font-bold text-xl">'+fmtCur(w.balance)+'</div></div>').join('')}
-    </div>
-    <div class="stat-card mb-6 fade-up fade-up-3" style="--card-accent:#3b82f6"><div class="flex items-center justify-between mb-4"><h3 class="font-display font-bold text-sm">Últimos 7 Días</h3><span class="badge badge-accent">Ventas vs Gastos</span></div><div style="height:220px"><canvas id="chart-7days"></canvas></div></div>
-    <div class="grid grid-cols-1 xl:grid-cols-2 gap-4">
-      <div class="stat-card fade-up fade-up-4" style="--card-accent:#06b6d4"><div class="flex items-center justify-between mb-4"><h3 class="font-display font-bold text-sm">Transacciones Recientes</h3><button class="text-xs text-accent hover:underline" onclick="navigate(\'transactions\')">Ver Todo</button></div><div class="space-y-2">${allTx.length===0?'<p class="text-muted text-sm text-center py-8">Aún no hay transacciones</p>':allTx.map(tx=>'<div class="flex items-center justify-between py-2 border-b border-brd/50 last:border-0"><div class="flex items-center gap-3"><div class="w-7 h-7 rounded-lg flex items-center justify-center '+(tx.type==='sale'?'bg-success/10':'bg-danger/10')+'"><i class="fa-solid '+(tx.type==='sale'?'fa-arrow-up text-success':'fa-arrow-down text-danger')+' text-xs"></i></div><div><div class="text-sm font-medium truncate max-w-[160px]">'+tx.desc+'</div><div class="text-muted text-xs">'+fmtDateTime(tx.date)+'</div></div></div><div class="text-right"><div class="text-sm font-bold '+(tx.type==='sale'?'text-success':'text-danger')+'">'+(tx.type==='sale'?'+':'-')+fmtCur(tx.amount)+'</div>'+(tx.walletId?'<div class="text-muted text-xs" style="color:'+DB.getWalletColor(tx.walletId)+'">'+DB.getWalletName(tx.walletId)+'</div>':'')+'</div></div>').join('')}</div></div>
-      <div class="stat-card fade-up fade-up-5" style="--card-accent:#f59e0b"><div class="flex items-center justify-between mb-4"><h3 class="font-display font-bold text-sm">Alerta de Stock Bajo</h3><span class="badge '+(lowStock.length?'badge-danger':'badge-success')+'">'+lowStock.length+' artículo'+(lowStock.length!==1?'s':'')+'</span></div><div class="space-y-2">${lowStock.length===0?'<p class="text-muted text-sm text-center py-8"><i class="fa-solid fa-check-circle text-success text-2xl mb-2 block"></i>Todos bien surtidos</p>':lowStock.map(p=>'<div class="flex items-center justify-between py-2 border-b border-brd/50 last:border-0"><div><div class="text-sm font-medium">'+p.name+'</div><div class="text-muted text-xs">'+(p.sku||'Sin SKU')+'</div></div><span class="badge badge-danger">'+p.stock+' rest.</span></div>').join('')}</div></div>
-    </div>`;
-  const ctx7=document.getElementById('chart-7days');
-  if(ctx7){dashboardCharts['7d']=new Chart(ctx7,{type:'bar',data:{labels:last7.map(d=>d.label),datasets:[{label:'Ventas',data:last7.map(d=>d.sales),backgroundColor:'rgba(16,185,129,0.7)',borderRadius:6,borderSkipped:false},{label:'Gastos',data:last7.map(d=>d.expenses),backgroundColor:'rgba(239,68,68,0.7)',borderRadius:6,borderSkipped:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{color:'#737373',padding:16,usePointStyle:true,pointStyleWidth:8,font:{size:11}}}},scales:{x:{grid:{display:false},ticks:{color:'#525252',font:{size:11}}},y:{grid:{color:'#1a1a1a'},ticks:{color:'#525252',font:{size:11},callback:v=>'$'+v},beginAtZero:true}}}})}
+function updateWalletDisplay() {
+  const b = fmtCur(DB.getTotalBalance());
+  $('#sidebar-wallet').textContent = b;
+  $('#topbar-wallet').textContent = b;
 }
 
-function renderWallets(){
-  const wallets=DB.getWallets(),ops=DB.getWalletOps();
-  $('#content').innerHTML=`
-    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6"><div><h2 class="font-display font-bold text-xl">Billeteras</h2><p class="text-muted text-sm">Gestione sus métodos de pago</p></div><button class="btn btn-primary" onclick="showCreateWalletModal()"><i class="fa-solid fa-plus"></i>Crear Billetera</button></div>
-    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 mb-8">
-      ${wallets.map(w=>'<div class="bg-card border border-brd rounded-xl overflow-hidden" style="border-top:3px solid '+w.color+'"><div class="p-5"><div class="flex items-center justify-between mb-3"><div class="flex items-center gap-2"><div class="w-3 h-3 rounded-full" style="background:'+w.color+'"></div><span class="font-display font-bold">'+w.name+'</span></div><span class="badge '+(w.balance>=0?'badge-success':'badge-danger')+'">'+fmtCur(w.balance)+'</span></div><div class="font-display font-bold text-3xl mb-4">'+fmtCur(w.balance)+'</div><div class="grid grid-cols-2 gap-2"><button class="btn btn-ghost btn-sm justify-center text-xs" onclick="showRechargeModal(\''+w.id+'\')"><i class="fa-solid fa-plus text-success"></i>Recargar</button><button class="btn btn-ghost btn-sm justify-center text-xs" onclick="showTransferModal(\''+w.id+'\')"><i class="fa-solid fa-arrow-right-arrow-left text-accent"></i>Transferir</button><button class="btn btn-ghost btn-sm justify-center text-xs" onclick="showEditWalletModal(\''+w.id+'\')"><i class="fa-solid fa-pen"></i>Editar</button><button class="btn btn-ghost btn-sm justify-center text-xs text-danger hover:!border-danger/50" onclick="deleteWallet(\''+w.id+'\',\''+w.name.replace(/'/g,"\\\\'")+'\','+w.balance+')"><i class="fa-solid fa-trash"></i>Eliminar</button></div></div></div>').join('')}
-      ${wallets.length===0?'<div class="col-span-full text-center py-16"><i class="fa-solid fa-wallet text-4xl text-muted mb-4 block"></i><p class="text-muted">No hay billeteras creadas</p></div>':''}
-    </div>
-    <div class="stat-card" style="--card-accent:#f59e0b"><h3 class="font-display font-bold text-sm mb-4">Recargas y Transferencias</h3><div class="space-y-2">${ops.length===0?'<p class="text-muted text-sm text-center py-6">Sin operaciones</p>':ops.sort((a,b)=>new Date(b.date)-new Date(a.date)).map(o=>{if(o.type==='recharge')return'<div class="flex items-center justify-between py-2 border-b border-brd/50 last:border-0"><div class="flex items-center gap-3"><div class="w-7 h-7 rounded-lg bg-success/10 flex items-center justify-center"><i class="fa-solid fa-plus text-success text-xs"></i></div><div><div class="text-sm font-medium">Recarga a '+DB.getWalletName(o.walletId)+'</div><div class="text-muted text-xs">'+fmtDateTime(o.date)+'</div></div></div><span class="font-bold text-success text-sm">+'+fmtCur(o.amount)+'</span></div>';return'<div class="flex items-center justify-between py-2 border-b border-brd/50 last:border-0"><div class="flex items-center gap-3"><div class="w-7 h-7 rounded-lg bg-accent/10 flex items-center justify-center"><i class="fa-solid fa-arrow-right-arrow-left text-accent text-xs"></i></div><div><div class="text-sm font-medium">Transferencia: '+DB.getWalletName(o.fromWalletId)+' → '+DB.getWalletName(o.toWalletId)+'</div><div class="text-muted text-xs">'+fmtDateTime(o.date)+'</div></div></div><span class="font-bold text-accent text-sm">'+fmtCur(o.amount)+'</span></div>'}).join('')}</div></div>`;
+function walletOpts(selId, idAttr) {
+  const ws = DB.getWallets();
+  if (!ws.length) return '<p class="text-danger text-xs mt-1">Cree una billetera primero</p>';
+  return '<select id="'+idAttr+'" class="input-field">' +
+    ws.map(w => '<option value="'+w.id+'" '+(w.id===selId?'selected':'')+'>'+w.name+' ('+fmtCur(w.balance)+')</option>').join('') +
+    '</select>';
 }
 
-function showCreateWalletModal(){selectedColor='#10b981';Modal.show('<h3 class="font-display font-bold text-lg mb-5">Crear Billetera</h3><div class="space-y-4"><div><label class="block text-xs font-medium text-muted mb-1.5 uppercase tracking-wider">Nombre</label><input id="wm-name" type="text" class="input-field" placeholder="Ej. Nequi, Efectivo, Daviplata..."></div><div><label class="block text-xs font-medium text-muted mb-1.5 uppercase tracking-wider">Color</label><div id="wm-colors" class="flex gap-3 flex-wrap">'+WALLET_COLORS.map(c=>'<div class="color-dot '+(c.value===selectedColor?'sel':'')+'" style="background:'+c.value+'" onclick="pickColor(\''+c.value+'\')"></div>').join('')+'</div></div><div id="wm-error" class="text-danger text-xs hidden"></div><div class="flex gap-3 justify-end pt-2"><button class="btn btn-ghost" onclick="Modal.close()">Cancelar</button><button class="btn btn-primary" onclick="saveNewWallet()">Crear</button></div></div>')}
-function showEditWalletModal(id){const w=DB.getWallets().find(x=>x.id===id);if(!w)return;selectedColor=w.color;Modal.show('<h3 class="font-display font-bold text-lg mb-5">Editar Billetera</h3><div class="space-y-4"><div><label class="block text-xs font-medium text-muted mb-1.5 uppercase tracking-wider">Nombre</label><input id="wm-name" type="text" class="input-field" value="'+w.name+'"></div><div><label class="block text-xs font-medium text-muted mb-1.5 uppercase tracking-wider">Color</label><div id="wm-colors" class="flex gap-3 flex-wrap">'+WALLET_COLORS.map(c=>'<div class="color-dot '+(c.value===selectedColor?'sel':'')+'" style="background:'+c.value+'" onclick="pickColor(\''+c.value+'\')"></div>').join('')+'</div></div><div id="wm-error" class="text-danger text-xs hidden"></div><div class="flex gap-3 justify-end pt-2"><button class="btn btn-ghost" onclick="Modal.close()">Cancelar</button><button class="btn btn-primary" onclick="saveEditWallet(\''+id+'\')">Guardar</button></div></div>')}
-function pickColor(c){selectedColor=c;$$('#wm-colors .color-dot').forEach(d=>{d.classList.toggle('sel',d.style.backgroundColor===c||rgbToHex(d.style.backgroundColor)===c)})}
-function rgbToHex(rgb){if(rgb.startsWith('#'))return rgb;const m=rgb.match(/(\d+)/g);if(!m||m.length<3)return rgb;return'#'+m.slice(0,3).map(x=>parseInt(x).toString(16).padStart(2,'0')).join('')}
-function saveNewWallet(){const n=$('#wm-name').value.trim();if(!n){$('#wm-error').textContent='El nombre es obligatorio';$('#wm-error').classList.remove('hidden');return}DB.addWallet({name:n,balance:0,color:selectedColor});Toast.show('Billetera "'+n+'" creada','success');Modal.close();renderWallets();updateWalletDisplay()}
-function saveEditWallet(id){const n=$('#wm-name').value.trim();if(!n){$('#wm-error').textContent='El nombre es obligatorio';$('#wm-error').classList.remove('hidden');return}DB.updateWallet(id,{name:n,color:selectedColor});Toast.show('Billetera actualizada','success');Modal.close();renderWallets();updateWalletDisplay()}
-function deleteWallet(id,name,bal){if(bal!==0){Toast.show('La billetera debe estar en $0.00 para eliminarla','warn');return}Modal.confirm('¿Eliminar la billetera "'+name+'"?',()=>{DB.deleteWallet(id);Toast.show('Billetera eliminada','success');renderWallets();updateWalletDisplay()})}
+let selectedColor = '#10b981';
 
-function showRechargeModal(wid){const w=DB.getWallets().find(x=>x.id===wid);if(!w)return;Modal.show('<h3 class="font-display font-bold text-lg mb-5">Recargar Billetera</h3><div class="space-y-4"><div class="flex items-center gap-3 bg-bg-alt rounded-xl p-4"><div class="w-3 h-3 rounded-full" style="background:'+w.color+'"></div><div><div class="font-medium text-sm">'+w.name+'</div><div class="text-muted text-xs">Saldo actual: '+fmtCur(w.balance)+'</div></div></div><div><label class="block text-xs font-medium text-muted mb-1.5 uppercase tracking-wider">Monto a Recargar</label><input id="rc-amount" type="number" step="0.01" min="0.01" class="input-field" placeholder="0.00"></div><div id="rc-error" class="text-danger text-xs hidden"></div><div class="flex gap-3 justify-end pt-2"><button class="btn btn-ghost" onclick="Modal.close()">Cancelar</button><button class="btn btn-success" onclick="doRecharge(\''+wid+'\')"><i class="fa-solid fa-plus"></i>Recargar</button></div></div>')}
-function doRecharge(wid){const amt=parseFloat($('#rc-amount').value);if(isNaN(amt)||amt<=0){$('#rc-error').textContent='Monto inválido';$('#rc-error').classList.remove('hidden');return}DB.creditWallet(wid,amt);DB.addWalletOp({type:'recharge',walletId:wid,amount:amt});Toast.show('Recargado '+fmtCur(amt)+' a '+DB.getWalletName(wid),'success');Modal.close();renderWallets();updateWalletDisplay()}
+/* ===== ROUTER ===== */
+let currentPage = 'dashboard';
+const pageTitles = {
+  dashboard:'Panel Principal', wallets:'Billeteras', inventory:'Inventario',
+  'buy-stock':'Comprar Stock', 'new-sale':'Nueva Venta', 'new-expense':'Nuevo Gasto',
+  transactions:'Historial', analytics:'Análisis', settings:'Configuración'
+};
 
-function showTransferModal(fromId){const wallets=DB.getWallets();Modal.show('<h3 class="font-display font-bold text-lg mb-5">Transferir entre Billeteras</h3><div class="space-y-4"><div><label class="block text-xs font-medium text-muted mb-1.5 uppercase tracking-wider">Desde</label><select id="tf-from" class="input-field">'+wallets.map(w=>'<option value="'+w.id+'" '+(w.id===fromId?'selected':'')+'>'+w.name+' ('+fmtCur(w.balance)+')</option>').join('')+'</select></div><div class="text-center"><i class="fa-solid fa-arrow-down text-muted"></i></div><div><label class="block text-xs font-medium text-muted mb-1.5 uppercase tracking-wider">Hacia</label><select id="tf-to" class="input-field">'+wallets.map(w=>'<option value="'+w.id+'" '+(w.id===fromId?'':'selected')+'>'+w.name+' ('+fmtCur(w.balance)+')</option>').join('')+'</select></div><div><label class="block text-xs font-medium text-muted mb-1.5 uppercase tracking-wider">Monto</label><input id="tf-amount" type="number" step="0.01" min="0.01" class="input-field" placeholder="0.00"></div><div id="tf-error" class="text-danger text-xs hidden"></div><div class="flex gap-3 justify-end pt-2"><button class="btn btn-ghost" onclick="Modal.close()">Cancelar</button><button class="btn btn-primary" onclick="doTransfer()"><i class="fa-solid fa-arrow-right-arrow-left"></i>Transferir</button></div></div>')}
-function doTransfer(){const from=$('#tf-from').value,to=$('#tf-to').value,amt=parseFloat($('#tf-amount').value);if(from===to){$('#tf-error').textContent='Seleccione billeteras diferentes';$('#tf-error').classList.remove('hidden');return}if(isNaN(amt)||amt<=0){$('#tf-error').textContent='Monto inválido';$('#tf-error').classList.remove('hidden');return}const wFrom=DB.getWallets().find(w=>w.id===from);if(!wFrom||wFrom.balance<amt){$('#tf-error').textContent='Saldo insuficiente';$('#tf-error').classList.remove('hidden');return}DB.debitWallet(from,amt);DB.creditWallet(to,amt);DB.addWalletOp({type:'transfer',fromWalletId:from,toWalletId:to,amount:amt});Toast.show('Transferido '+fmtCur(amt)+' de '+DB.getWalletName(from)+' a '+DB.getWalletName(to),'success');Modal.close();renderWallets();updateWalletDisplay()}
+function navigate(page) {
+  currentPage = page;
+  $('#page-title').textContent = pageTitles[page] || page;
+  Sidebar.setActive(page);
+  Sidebar.close();
+  updateWalletDisplay();
+  const r = {
+    dashboard: renderDashboard, wallets: renderWallets, inventory: renderInventory,
+    'buy-stock': renderBuyStock, 'new-sale': renderNewSale, 'new-expense': renderNewExpense,
+    transactions: renderTransactions, analytics: renderAnalytics, settings: renderSettings
+  };
+  if (r[page]) r[page]();
+}
 
-function renderInventory(){const p=DB.getProducts();$('#content').innerHTML='<div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6"><div><h2 class="font-display font-bold text-xl">Inventario de Productos</h2><p class="text-muted text-sm">'+p.length+' productos</p></div><button class="btn btn-primary" onclick="showProductModal()"><i class="fa-solid fa-plus"></i>Agregar Producto</button></div><div class="mb-4"><input id="inv-search" type="text" class="input-field max-w-md" placeholder="Buscar productos..." oninput="filterInv()"></div><div id="inv-list">'+renderProdList(p)+'</div>'}
-function renderProdList(p){if(!p.length)return'<div class="text-center py-16"><i class="fa-solid fa-box-open text-4xl text-muted mb-4 block"></i><p class="text-muted">No hay productos</p></div>';return'<div class="grid gap-3">'+p.map(x=>'<div class="bg-card border border-brd rounded-xl p-4 flex flex-col sm:flex-row sm:items-center gap-4 hover:border-accent/30 transition-colors" data-name="'+x.name.toLowerCase()+'" data-sku="'+(x.sku||'').toLowerCase()+'"><div class="flex-1 min-w-0"><div class="flex items-center gap-2 mb-1"><h4 class="font-display font-bold text-sm truncate">'+x.name+'</h4>'+(x.stock<10?'<span class="badge badge-danger shrink-0">Stock Bajo</span>':'')+'</div><div class="text-muted text-xs">SKU: '+(x.sku||'N/A')+'</div></div><div class="flex flex-wrap gap-4 sm:gap-6 text-sm"><div><span class="text-muted text-xs block">Costo</span><span class="font-medium">'+fmtCur(x.costPrice)+'</span></div><div><span class="text-muted text-xs block">Venta</span><span class="font-medium text-success">'+fmtCur(x.sellingPrice)+'</span></div><div><span class="text-muted text-xs block">Margen</span><span class="font-medium text-accent">'+Math.round((x.sellingPrice-x.costPrice)/x.sellingPrice*100)+'%</span></div><div><span class="text-muted text-xs block">Stock</span><span class="font-bold '+(x.stock<10?'text-danger':'text-fg')+'">'+x.stock+'</span></div></div><div class="flex gap-2"><button class="btn btn-ghost btn-sm" onclick="showProductModal(\''+x.id+'\')"><i class="fa-solid fa-pen text-xs"></i></button><button class="btn btn-ghost btn-sm text-danger hover:!border-danger/50" onclick="delProduct(\''+x.id+'\',\''+x.name.replace(/'/g,"\\\\'")+'\')"><i class="fa-solid fa-trash text-xs"></i></button></div></div>').join('')+'</div>'}
-function filterInv(){const q=$('#inv-search').value.toLowerCase();$('#inv-list').innerHTML=renderProdList(DB.getProducts().filter(p=>p.name.toLowerCase().includes(q)||(p.sku||'').toLowerCase().includes(q)))}
-function showProductModal(id=null){const p=id?DB.getProducts().find(x=>x.id===id):null;Modal.show('<h3 class="font-display font-bold text-lg mb-5">'+(p?'Editar':'Agregar')+' Producto</h3><div class="space-y-4"><div><label class="block text-xs font-medium text-muted mb-1.5 uppercase tracking-wider">Nombre</label><input id="pm-name" type="text" class="input-field" value="'+(p?p.name:'')+'"></div><div><label class="block text-xs font-medium text-muted mb-1.5 uppercase tracking-wider">SKU</label><input id="pm-sku" type="text" class="input-field" value="'+(p?p.sku||'':'')+'"></div><div class="grid grid-cols-2 gap-4"><div><label class="block text-xs font-medium text-muted mb-1.5 uppercase tracking-wider">Costo</label><input id="pm-cost" type="number" step="0.01" min="0" class="input-field" value="'+(p?p.costPrice:'')+'"></div><div><label class="block text-xs font-medium text-muted mb-1.5 uppercase tracking-wider">Venta</label><input id="pm-sell" type="number" step="0.01" min="0" class="input-field" value="'+(p?p.sellingPrice:'')+'"></div></div><div><label class="block text-xs font-medium text-muted mb-1.5 uppercase tracking-wider">Stock</label><input id="pm-stock" type="number" min="0" class="input-field" value="'+(p?p.stock:'')+'"></div><div id="pm-error" class="text-danger text-xs hidden"></div><div class="flex gap-3 justify-end pt-2"><button class="btn btn-ghost" onclick="Modal.close()">Cancelar</button><button class="btn btn-primary" onclick="saveProd(\''+(id||'')+'\')">'+(p?'Actualizar':'Agregar')+'</button></div></div>')}
-function saveProd(id){const n=$('#pm-name').value.trim(),s=$('#pm-sku').value.trim(),c=parseFloat($('#pm-cost').value),sl=parseFloat($('#pm-sell').value),st=parseInt($('#pm-stock').value);if(!n){$('#pm-error').textContent='Nombre obligatorio';$('#pm-error').classList.remove('hidden');return}if(isNaN(c)||c<0||isNaN(sl)||sl<0||isNaN(st)||st<0){$('#pm-error').textContent='Valores inválidos';$('#pm-error').classList.remove('hidden');return}if(id){DB.updateProduct(id,{name:n,sku:s,costPrice:c,sellingPrice:sl,stock:st});Toast.show('Producto actualizado','success')}else{DB.addProduct({name:n,sku:s,costPrice:c,sellingPrice:sl,stock:st});Toast.show('Producto agregado','success')}Modal.close();renderInventory()}
-function delProduct(id,name){Modal.confirm('¿Eliminar "'+name+'"?',()=>{DB.deleteProduct(id);Toast.show('Producto eliminado','success');renderInventory()})}
+ $$('#sidebar-nav .nav-item').forEach(n => {
+  n.addEventListener('click', () => navigate(n.dataset.page));
+});
+ $('#logout-btn').addEventListener('click', () => { Auth.logout(); showLogin(); });
 
-function renderBuyStock(){const products=DB.getProducts(),wallets=DB.getWallets();$('#content').innerHTML='<div class="mb-6"><h2 class="font-display font-bold text-xl">Comprar Stock</h2><p class="text-muted text-sm">Reponga inventario pagando desde una billetera</p></div><div class="max-w-lg"><div class="bg-card border border-brd rounded-xl p-6 space-y-5"><div><label class="block text-xs font-medium text-muted mb-1.5 uppercase tracking-wider">Producto</label><select id="bs-prod" class="input-field" onchange="updateBuyCost()"><option value="">Seleccione...</option>'+products.map(p=>'<option value="'+p.id+'" data-cost="'+p.costPrice+'" data-stock="'+p.stock+'">'+p.name+' (Stock: '+p.stock+')</option>').join('')+'</select></div><div class="grid grid-cols-2 gap-4"><div><label class="block text-xs font-medium text-muted mb-1.5 uppercase tracking-wider">Cantidad</label><input id="bs-qty" type="number" min="1" value="1" class="input-field" oninput="updateBuyCost()"></div><div><label class="block text-xs font-medium text-muted mb-1.5 uppercase tracking-wider">Costo Unitario</label><input id="bs-cost" type="number" step="0.01" min="0" class="input-field" oninput="updateBuyCost()"></div></div><div class="bg-bg-alt rounded-xl p-4"><div class="flex justify-between text-sm"><span class="text-muted">Total a Pagar</span><span id="bs-total" class="font-display font-bold">$0.00</span></div></div><div><label class="block text-xs font-medium text-muted mb-1.5 uppercase tracking-wider">Pagar desde</label>'+walletOpts('','bs-wallet')+'</div><div id="bs-error" class="text-danger text-xs hidden"></div><button class="btn btn-danger w-full justify-center py-3" onclick="doBuyStock()"><i class="fa-solid fa-truck"></i>Completar Compra</button></div></div>'}
-function updateBuyCost(){const sel=$('#bs-prod');const opt=sel.selectedOptions[0];if(opt&&opt.dataset.cost)$('#bs-cost').value=opt.dataset.cost;const q=parseInt($('#bs-qty').value)||0,c=parseFloat($('#bs-cost').value)||0;$('#bs-total').textContent=fmtCur(q*c)}
-function doBuyStock(){const pid=$('#bs-prod').value,wid=$('#bs-wallet').value,qty=parseInt($('#bs-qty').value),uc=parseFloat($('#bs-cost').value);if(!pid){$('#bs-error').textContent='Seleccione un producto';$('#bs-error').classList.remove('hidden');return}if(!wid){$('#bs-error').textContent='Seleccione una billetera';$('#bs-error').classList.remove('hidden');return}if(isNaN(qty)||qty<1||isNaN(uc)||uc<0){$('#bs-error').textContent='Valores inválidos';$('#bs-error').classList.remove('hidden');return}const total=qty*uc;const w=DB.getWallets().find(x=>x.id===wid);if(!w||w.balance<total){$('#bs-error').textContent='Saldo insuficiente';$('#bs-error').classList.remove('hidden');return}const p=DB.getProducts().find(x=>x.id===pid);DB.updateProduct(pid,{stock:p.stock+qty,costPrice:uc});DB.debitWallet(wid,total);DB.addPurchase({productId:pid,productName:p.name,quantity:qty,unitCost:uc,totalCost:total,walletId:wid});Toast.show('Comprado '+qty+'x '+p.name+' por '+fmtCur(total),'success');renderBuyStock();updateWalletDisplay()}
+/* ===== LOGIN ===== */
+function showLogin() {
+  $('#login-screen').classList.remove('hidden');
+  $('#app-shell').classList.add('hidden');
+  $('#login-user').value = '';
+  $('#login-pass').value = '';
+  $('#login-error').classList.add('hidden');
+}
+function showApp() {
+  $('#login-screen').classList.add('hidden');
+  $('#app-shell').classList.remove('hidden');
+  navigate('dashboard');
+}
 
-let saleCart=[];
-function renderNewSale(){saleCart=[];const products=DB.getProducts(),wallets=DB.getWallets();$('#content').innerHTML='<div class="mb-6"><h2 class="font-display font-bold text-xl">Registrar una Venta</h2></div><div class="grid grid-cols-1 xl:grid-cols-5 gap-6"><div class="xl:col-span-3"><div class="mb-4"><input id="sale-search" type="text" class="input-field" placeholder="Buscar productos..." oninput="filterSaleProd()"></div><div id="sale-products" class="space-y-2 max-h-[55vh] overflow-y-auto pr-1">'+renderSaleProd(products)+'</div></div><div class="xl:col-span-2"><div class="bg-card border border-brd rounded-xl p-5 sticky top-20"><h3 class="font-display font-bold text-sm mb-4 flex items-center gap-2"><i class="fa-solid fa-cart-shopping text-accent text-xs"></i>Resumen</h3><div class="mb-4"><label class="block text-xs font-medium text-muted mb-1.5 uppercase tracking-wider">Recibir en</label>'+walletOpts('','sale-wallet')+'</div><div id="sale-cart" class="space-y-2 mb-4 min-h-[60px]"><p class="text-muted text-sm text-center py-4">Carrito vacío</p></div><div class="border-t border-brd pt-4 space-y-2"><div class="flex justify-between text-sm"><span class="text-muted">Total</span><span id="sale-total" class="font-bold text-success">$0.00</span></div><div class="flex justify-between text-sm"><span class="text-muted">Costo</span><span id="sale-cost" class="font-medium">$0.00</span></div><div class="flex justify-between text-sm"><span class="text-muted">Ganancia</span><span id="sale-profit" class="font-bold text-accent">$0.00</span></div></div><button id="sale-complete-btn" class="btn btn-success w-full justify-center mt-4 opacity-50 pointer-events-none" onclick="completeSale()"><i class="fa-solid fa-check"></i>Completar Venta</button></div></div></div>'}
-function renderSaleProd(products){return products.filter(p=>p.stock>0).map(p=>'<div class="bg-card border border-brd rounded-xl p-4 flex items-center gap-4 hover:border-accent/20 transition-colors sale-product" data-name="'+p.name.toLowerCase()+'"><div class="flex-1 min-w-0"><div class="font-medium text-sm truncate">'+p.name+'</div><div class="text-muted text-xs">'+fmtCur(p.sellingPrice)+' · Stock: '+p.stock+'</div></div><div class="flex items-center gap-2"><input type="number" min="1" max="'+p.stock+'" value="1" class="input-field w-16 text-center text-sm py-1.5 sale-qty" data-id="'+p.id+'"><button class="btn btn-primary btn-sm" onclick="addToCart(\''+p.id+'\')"><i class="fa-solid fa-plus text-xs"></i></button></div></div>').join('')||'<p class="text-muted text-sm text-center py-8">Sin stock</p>'}
-function filterSaleProd(){const q=$('#sale-search').value.toLowerCase();$('#sale-products').innerHTML=renderSaleProd(DB.getProducts().filter(p=>p.name.toLowerCase().includes(q)))}
-function addToCart(pid){const p=DB.getProducts().find(x=>x.id===pid);if(!p)return;const qty=parseInt(document.querySelector('.sale-qty[data-id="'+pid+'"]')?.value)||1;if(qty>p.stock){Toast.show('Solo '+p.stock+' disponibles','warn');return}const ex=saleCart.find(c=>c.productId===pid);if(ex){if(ex.qty+qty>p.stock){Toast.show('Solo '+(p.stock-ex.qty)+' más','warn');return}ex.qty+=qty}else saleCart.push({productId:p.id,name:p.name,costPrice:p.costPrice,sellingPrice:p.sellingPrice,qty});updateCartUI();Toast.show('+'+qty+'x '+p.name,'success')}
-function updateCartUI(){if(!saleCart.length){$('#sale-cart').innerHTML='<p class="text-muted text-sm text-center py-4">Carrito vacío</p>';$('#sale-total').textContent='$0.00';$('#sale-cost').textContent='$0.00';$('#sale-profit').textContent='$0.00';$('#sale-complete-btn').classList.add('opacity-50','pointer-events-none');return}$('#sale-complete-btn').classList.remove('opacity-50','pointer-events-none');let t=0,c=0;$('#sale-cart').innerHTML=saleCart.map((item,i)=>{const s=item.sellingPrice*item.qty;c+=item.costPrice*item.qty;t+=s;return'<div class="flex items-center justify-between py-2 border-b border-brd/50 last:border-0"><div class="min-w-0 flex-1"><div class="text-sm font-medium truncate">'+item.name+'</div><div class="text-muted text-xs">'+item.qty+' x '+fmtCur(item.sellingPrice)+'</div></div><div class="flex items-center gap-2"><span class="text-sm font-medium">'+fmtCur(s)+'</span><button class="text-muted hover:text-danger text-xs" onclick="saleCart.splice('+i+',1);updateCartUI()"><i class="fa-solid fa-xmark"></i></button></div></div>'}).join('');$('#sale-total').textContent=fmtCur(t);$('#sale-cost').textContent=fmtCur(c);$('#sale-profit').textContent=fmtCur(t-c)}
-function completeSale(){if(!saleCart.length)return;const wid=$('#sale-wallet').value;if(!wid){Toast.show('Seleccione una billetera','warn');return}const total=saleCart.reduce((a,i)=>a+i.sellingPrice*i.qty,0),tc=saleCart.reduce((a,i)=>a+i.costPrice*i.qty,0);saleCart.forEach(item=>{const p=DB.getProducts().find(x=>x.id===item.productId);if(p)DB.updateProduct(p.id,{stock:p.stock-item.qty})});DB.addSale({items:[...saleCart],total,totalCost:tc,walletId:wid});DB.creditWallet(wid,total);Toast.show('Venta: '+fmtCur(total)+' a '+DB.getWalletName(wid),'success');updateWalletDisplay();renderNewSale()}
+ $('#login-btn').addEventListener('click', async () => {
+  const u = $('#login-user').value.trim(), p = $('#login-pass').value;
+  if (!u||!p) { $('#login-error').textContent='Complete todos los campos'; $('#login-error').classList.remove('hidden'); return; }
+  const r = await Auth.login(u, p);
+  if (r.ok) showApp();
+  else { $('#login-error').textContent=r.msg; $('#login-error').classList.remove('hidden'); }
+});
+ $('#login-pass').addEventListener('keydown', e => { if(e.key==='Enter') $('#login-btn').click(); });
+ $('#login-user').addEventListener('keydown', e => { if(e.key==='Enter') $('#login-pass').focus(); });
 
-const EXP_CATS=['Renta','Servicios','Insumos','Transporte','Alimentos y Bebidas','Mantenimiento','Marketing','Salarios','Varios'];
-function renderNewExpense(){const wallets=DB.getWallets();$('#content').innerHTML='<div class="mb-6"><h2 class="font-display font-bold text-xl">Registrar un Gasto</h2></div><div class="max-w-lg"><div class="bg-card border border-brd rounded-xl p-6 space-y-5"><div><label class="block text-xs font-medium text-muted mb-1.5 uppercase tracking-wider">Categoría</label><select id="exp-cat" class="input-field">'+EXP_CATS.map(c=>'<option value="'+c+'">'+c+'</option>').join('')+'</select></div><div><label class="block text-xs font-medium text-muted mb-1.5 uppercase tracking-wider">Descripción</label><input id="exp-desc" type="text" class="input-field" placeholder="Descripción del gasto"></div><div><label class="block text-xs font-medium text-muted mb-1.5 uppercase tracking-wider">Monto</label><input id="exp-amount" type="number" step="0.01" min="0.01" class="input-field" placeholder="0.00"></div><div><label class="block text-xs font-medium text-muted mb-1.5 uppercase tracking-wider">Pagar desde</label>'+walletOpts('','exp-wallet')+'</div><div id="exp-error" class="text-danger text-xs hidden"></div><button class="btn btn-danger w-full justify-center py-3" onclick="doExpense()"><i class="fa-solid fa-minus"></i>Registrar Gasto</button></div></div>'}
-function doExpense(){const cat=$('#exp-cat').value,desc=$('#exp-desc').value.trim(),amt=parseFloat($('#exp-amount').value),wid=$('#exp-wallet').value;if(!desc){$('#exp-error').textContent='Descripción obligatoria';$('#exp-error').classList.remove('hidden');return}if(isNaN(amt)||amt<=0){$('#exp-error').textContent='Monto inválido';$('#exp-error').classList.remove('hidden');return}if(!wid){$('#exp-error').textContent='Seleccione una billetera';$('#exp-error').classList.remove('hidden');return}const w=DB.getWallets().find(x=>x.id===wid);if(w&&amt>w.balance)Toast.show('Advertencia: excede saldo en '+w.name,'warn');DB.addExpense({category:cat,description:desc,amount:amt,walletId:wid});DB.debitWallet(wid,amt);Toast.show('Gasto '+fmtCur(amt)+' de '+DB.getWalletName(wid),'success');updateWalletDisplay();renderNewExpense()}
+/* ===== DASHBOARD ===== */
+let dashboardCharts = {};
+function destroyDC() { Object.values(dashboardCharts).forEach(c => { if(c) c.destroy(); }); dashboardCharts = {}; }
 
-function renderTransactions(){const sales=DB.getSales(),expenses=DB.getExpenses(),purchases=DB.getPurchases();let allTx=[...sales.map(s=>({type:'sale',id:s.id,date:s.date,desc:'Venta #'+s.id.slice(-5).toUpperCase(),amount:s.total,profit:s.total-s.totalCost,walletId:s.walletId,detail:s.items})),...expenses.map(e=>({type:'expense',id:e.id,date:e.date,desc:e.description,category:e.category,amount:e.amount,walletId:e.walletId})),...purchases.map(p=>({type:'purchase',id:p.id,date:p.date,desc:'Compra: '+p.productName+' x'+p.quantity,amount:p.totalCost,walletId:p.walletId}))].sort((a,b)=>new Date(b.date)-new Date(a.date));$('#content').innerHTML='<div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6"><div><h2 class="font-display font-bold text-xl">Historial</h2><p class="text-muted text-sm">'+allTx.length+' transacciones</p></div><select id="tx-filter" class="input-field w-auto text-sm" onchange="filterTx()"><option value="all">Todos</option><option value="sale">Ventas</option><option value="expense">Gastos</option><option value="purchase">Compras Stock</option></select></div><div id="tx-list">'+renderTxList(allTx)+'</div>'}
-function renderTxList(tx){if(!tx.length)return'<div class="text-center py-16"><i class="fa-solid fa-receipt text-4xl text-muted mb-4 block"></i><p class="text-muted">Sin transacciones</p></div>';return tx.map(t=>{const wC=DB.getWalletColor(t.walletId),wN=DB.getWalletName(t.walletId);const iC=t.type==='sale'?'fa-arrow-up text-success':'fa-arrow-down text-danger';const aC=t.type==='sale'?'text-success':'text-danger';return'<div class="bg-card border border-brd rounded-xl p-4 flex items-center gap-4 cursor-pointer hover:border-accent/20 transition-colors" onclick="showTxDetail(\''+t.id+'\',\''+t.type+'\')"><div class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style="background:'+wC+'15"><i class="fa-solid '+iC+' text-xs"></i></div><div class="flex-1 min-w-0"><div class="flex items-center gap-2 flex-wrap"><span class="font-medium text-sm truncate">'+t.desc+'</span>'+(t.category?'<span class="badge badge-warn">'+t.category+'</span>':'')+(t.type==='purchase'?'<span class="badge badge-accent">Stock</span>':'')+'</div><div class="text-muted text-xs">'+fmtDateTime(t.date)+' · <span style="color:'+wC+'">'+wN+'</span></div></div><div class="text-right shrink-0"><div class="font-display font-bold '+aC+'">'+(t.type==='sale'?'+':'-')+fmtCur(t.amount)+'</div>'+(t.type==='sale'?'<div class="text-muted text-xs">Gan: '+fmtCur(t.profit)+'</div>':'')+'</div></div>'}).join('')}
-function filterTx(){const f=$('#tx-filter').value;const s=DB.getSales(),e=DB.getExpenses(),p=DB.getPurchases();let all=[...s.map(x=>({type:'sale',id:x.id,date:x.date,desc:'Venta #'+x.id.slice(-5).toUpperCase(),amount:x.total,profit:x.total-x.totalCost,walletId:x.walletId,detail:x.items})),...e.map(x=>({type:'expense',id:x.id,date:x.date,desc:x.description,category:x.category,amount:x.amount,walletId:x.walletId})),...p.map(x=>({type:'purchase',id:x.id,date:x.date,desc:'Compra: '+x.productName+' x'+x.quantity,amount:x.totalCost,walletId:x.walletId}))].sort((a,b)=>new Date(b.date)-new Date(a.date));if(f!=='all')all=all.filter(t=>t.type===f);$('#tx-list').innerHTML=renderTxList(all)}
-function showTxDetail(id,type){if(type==='sale'){const s=DB.getSales().find(x=>x.id===id);if(!s)return;Modal.show('<h3 class="font-display font-bold text-lg mb-1">Detalle de Venta</h3><p class="text-muted text-xs mb-4">'+fmtDateTime(s.date)+' · <span style="color:'+DB.getWalletColor(s.walletId)+'">'+DB.getWalletName(s.walletId)+'</span></p><div class="space-y-2 mb-4">'+s.items.map(i=>'<div class="flex justify-between py-2 border-b border-brd/50 text-sm"><div><span class="font-medium">'+i.name+'</span> <span class="text-muted">x'+i.qty+'</span></div><span class="font-medium">'+fmtCur(i.sellingPrice*i.qty)+'</span></div>').join('')+'</div><div class="bg-bg-alt rounded-xl p-4 space-y-1"><div class="flex justify-between text-sm"><span class="text-muted">Total</span><span class="font-bold text-success">'+fmtCur(s.total)+'</span></div><div class="flex justify-between text-sm"><span class="text-muted">Costo</span><span>'+fmtCur(s.totalCost)+'</span></div><div class="flex justify-between text-sm"><span class="text-muted">Ganancia</span><span class="font-bold text-accent">'+fmtCur(s.total-s.totalCost)+'</span></div></div><div class="flex justify-end mt-4"><button class="btn btn-ghost" onclick="Modal.close()">Cerrar</button></div>')}else if(type==='expense'){const e=DB.getExpenses().find(x=>x.id===id);if(!e)return;Modal.show('<h3 class="font-display font-bold text-lg mb-1">Detalle de Gasto</h3><p class="text-muted text-xs mb-4">'+fmtDateTime(e.date)+' · <span style="color:'+DB.getWalletColor(e.walletId)+'">'+DB.getWalletName(e.walletId)+'</span></p><div class="bg-bg-alt rounded-xl p-4 space-y-1"><div class="flex justify-between text-sm"><span class="text-muted">Categoría</span><span class="badge badge-warn">'+e.category+'</span></div><div class="flex justify-between text-sm"><span class="text-muted">Descripción</span><span class="font-medium">'+e.description+'</span></div><div class="flex justify-between text-sm"><span class="text-muted">Monto</span><span class="font-bold text-danger">'+fmtCur(e.amount)+'</span></div></div><div class="flex justify-end mt-4"><button class="btn btn-ghost" onclick="Modal.close()">Cerrar</button></div>')}else{const p=DB.getPurchases().find(x=>x.id===id);if(!p)return;Modal.show('<h3 class="font-display font-bold text-lg mb-1">Detalle de Compra</h3><p class="text-muted text-xs mb-4">'+fmtDateTime(p.date)+' · <span style="color:'+DB.getWalletColor(p.walletId)+'">'+DB.getWalletName(p.walletId)+'</span></p><div class="bg-bg-alt rounded-xl p-4 space-y-1"><div class="flex justify-between text-sm"><span class="text-muted">Producto</span><span class="font-medium">'+p.productName+'</span></div><div class="flex justify-between text-sm"><span class="text-muted">Cantidad</span><span>'+p.quantity+'</span></div><div class="flex justify-between text-sm"><span class="text-muted">Costo Unitario</span><span>'+fmtCur(p.unitCost)+'</span></div><div class="flex justify-between text-sm"><span class="text-muted">Total</span><span class="font-bold text-danger">'+fmtCur(p.totalCost)+'</span></div></div><div class="flex justify-end mt-4"><button class="btn btn-ghost" onclick="Modal.close()">Cerrar</button></div>')}}
+function renderDashboard() {
+  destroyDC();
+  const sales = DB.getSales(), expenses = DB.getExpenses(), wallets = DB.getWallets();
+  const td = today(), cm = currentMonth();
 
-let analyticsCharts={};
-function destroyAC(){Object.values(analyticsCharts).forEach(c=>{if(c)c.destroy()});analyticsCharts={}}
-function renderAnalytics(){destroyAC();const sales=DB.getSales(),expenses=DB.getExpenses(),cm=currentMonth(),cf={family:"'DM Sans',sans-serif"};const last30=[];for(let i=29;i>=0;i--){const d=new Date();d.setDate(d.getDate()-i);const ds=d.toISOString().split('T')[0];const lb=d.toLocaleDateString('es-ES',{day:'numeric',month:'short'});last30.push({label:lb,sales:sales.filter(s=>s.date.startsWith(ds)).reduce((a,s)=>a+s.total,0),profit:sales.filter(s=>s.date.startsWith(ds)).reduce((a,s)=>a+(s.total-s.totalCost),0),expenses:expenses.filter(e=>e.date.startsWith(ds)).reduce((a,e)=>a+e.amount,0)})}const catMap={};expenses.forEach(e=>{catMap[e.category]=(catMap[e.category]||0)+e.amount});const catL=Object.keys(catMap),catV=Object.values(catMap),catC=['#f59e0b','#ef4444','#10b981','#3b82f6','#8b5cf6','#ec4899','#06b6d4','#f97316','#6366f1'];const prodRev={};sales.forEach(s=>s.items.forEach(it=>{if(!prodRev[it.productId])prodRev[it.productId]={name:it.name,revenue:0};prodRev[it.productId].revenue+=it.sellingPrice*it.qty}));const topP=Object.values(prodRev).sort((a,b)=>b.revenue-a.revenue).slice(0,6);const mS=sales.filter(s=>s.date.startsWith(cm)).reduce((a,s)=>a+s.total,0),mP=sales.filter(s=>s.date.startsWith(cm)).reduce((a,s)=>a+(s.total-s.totalCost),0),mE=expenses.filter(e=>e.date.startsWith(cm)).reduce((a,e)=>a+e.amount,0);const lm=cm.split('-');lm[1]=String(Math.max(1,parseInt(lm[1])-1)).padStart(2,'0');const lms=lm.join('-');const lmS=sales.filter(s=>s.date.startsWith(lms)).reduce((a,s)=>a+s.total,0),lmP=sales.filter(s=>s.date.startsWith(lms)).reduce((a,s)=>a+(s.total-s.totalCost),0),lmE=expenses.filter(e=>e.date.startsWith(lms)).reduce((a,e)=>a+e.amount,0);
- $('#content').innerHTML='<div class="mb-6"><h2 class="font-display font-bold text-xl">Análisis</h2></div><div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8"><div class="stat-card fade-up fade-up-1" style="--card-accent:#10b981"><div class="text-muted text-xs font-medium uppercase tracking-wider mb-2">Ventas del Mes</div><div class="font-display font-bold text-2xl text-success">'+fmtCur(mS)+'</div><div class="text-xs mt-1 '+(lmS>0?(mS>=lmS?'text-success':'text-danger'):'text-muted')+'">'+(lmS>0?(mS>=lmS?'+':'')+Math.round((mS-lmS)/lmS*100)+'% vs anterior':'Sin datos')+'</div></div><div class="stat-card fade-up fade-up-2" style="--card-accent:#ef4444"><div class="text-muted text-xs font-medium uppercase tracking-wider mb-2">Gastos del Mes</div><div class="font-display font-bold text-2xl text-danger">'+fmtCur(mE)+'</div><div class="text-xs mt-1 '+(lmE>0?(mE<=lmE?'text-success':'text-danger'):'text-muted')+'">'+(lmE>0?(mE<=lmE?'-':'+')+Math.round(Math.abs(mE-lmE)/lmE*100)+'% vs anterior':'Sin datos')+'</div></div><div class="stat-card fade-up fade-up-3" style="--card-accent:#8b5cf6"><div class="text-muted text-xs font-medium uppercase tracking-wider mb-2">Ganancia del Mes</div><div class="font-display font-bold text-2xl text-purple-400">'+fmtCur(mP)+'</div><div class="text-xs mt-1 '+(lmP>0?(mP>=lmP?'text-success':'text-danger'):'text-muted')+'">'+(lmP>0?(mP>=lmP?'+':'')+Math.round((mP-lmP)/lmP*100)+'% vs anterior':'Sin datos')+'</div></div></div><div class="grid grid-cols-1 xl:grid-cols-2 gap-4 mb-6"><div class="stat-card fade-up fade-up-3" style="--card-accent:#10b981"><h3 class="font-display font-bold text-sm mb-4">Tendencia (30 Días)</h3><div style="height:260px"><canvas id="chart-trend"></canvas></div></div><div class="stat-card fade-up fade-up-4" style="--card-accent:#f59e0b"><h3 class="font-display font-bold text-sm mb-4">Gastos por Categoría</h3><div style="height:260px;display:flex;align-items:center;justify-content:center">'+(catL.length?'<canvas id="chart-cat"></canvas>':'<p class="text-muted text-sm">Sin datos</p>')+'</div></div></div><div class="grid grid-cols-1 xl:grid-cols-2 gap-4"><div class="stat-card fade-up fade-up-4" style="--card-accent:#3b82f6"><h3 class="font-display font-bold text-sm mb-4">Top Productos</h3><div style="height:260px;display:flex;align-items:center;justify-content:center">'+(topP.length?'<canvas id="chart-prod"></canvas>':'<p class="text-muted text-sm">Sin datos</p>')+'</div></div><div class="stat-card fade-up fade-up-5" style="--card-accent:#06b6d4"><h3 class="font-display font-bold text-sm mb-4">Balance Neto Diario</h3><div style="height:260px"><canvas id="chart-net"></canvas></div></div></div>';
-const o={responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},plugins:{legend:{position:'bottom',labels:{color:'#737373',padding:16,usePointStyle:true,pointStyleWidth:8,font:{size:11,...cf}}}},scales:{x:{grid:{display:false},ticks:{color:'#525252',font:{size:10},maxTicksLimit:8}},y:{grid:{color:'#1a1a1a'},ticks:{color:'#525252',font:{size:10},callback:v=>'$'+v},beginAtZero:true}}};
-const c1=document.getElementById('chart-trend');if(c1)analyticsCharts.trend=new Chart(c1,{type:'line',data:{labels:last30.map(d=>d.label),datasets:[{label:'Ventas',data:last30.map(d=>d.sales),borderColor:'#10b981',backgroundColor:'rgba(16,185,129,0.08)',fill:true,tension:.4,pointRadius:0,borderWidth:2},{label:'Ganancia',data:last30.map(d=>d.profit),borderColor:'#8b5cf6',backgroundColor:'rgba(139,92,246,0.08)',fill:true,tension:.4,pointRadius:0,borderWidth:2}]},options:o});
-const c2=document.getElementById('chart-cat');if(c2&&catL.length)analyticsCharts.cat=new Chart(c2,{type:'doughnut',data:{labels:catL,datasets:[{data:catV,backgroundColor:catC.slice(0,catL.length),borderWidth:0,hoverOffset:8}]},options:{responsive:true,maintainAspectRatio:false,cutout:'65%',plugins:{legend:{position:'right',labels:{color:'#a3a3a3',padding:10,usePointStyle:true,pointStyleWidth:8,font:{size:11,...cf}}}}}});
-const c3=document.getElementById('chart-prod');if(c3&&topP.length)analyticsCharts.prod=new Chart(c3,{type:'bar',data:{labels:topP.map(p=>p.name),datasets:[{label:'Ingresos',data:topP.map(p=>p.revenue),backgroundColor:'rgba(59,130,246,0.7)',borderRadius:6,borderSkipped:false}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{color:'#1a1a1a'},ticks:{color:'#525252',font:{size:10},callback:v=>'$'+v}},y:{grid:{display:false},ticks:{color:'#a3a3a3',font:{size:11,...cf}}}}}});
-const c4=document.getElementById('chart-net');if(c4)analyticsCharts.net=new Chart(c4,{type:'bar',data:{labels:last30.map(d=>d.label),datasets:[{label:'Neto',data:last30.map(d=>d.sales-d.expenses),backgroundColor:last30.map(d=>(d.sales-d.expenses)>=0?'rgba(6,182,212,0.7)':'rgba(239,68,68,0.7)'),borderRadius:4,borderSkipped:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{display:false},ticks:{color:'#525252',font:{size:10},maxTicksLimit:8}},y:{grid:{color:'#1a1a1a'},ticks:{color:'#525252',font:{size:10},callback:v=>'$'+v}}}}})}
+  const todaySales = sales.filter(s => s.date.startsWith(td));
+  const dailySales = todaySales.reduce((a,s) => a+s.total, 0);
+  const dailyCost = todaySales.reduce((a,s) => a+s.totalCost, 0);
+  const dailyProfit = dailySales - dailyCost;
+  const monthlySales = sales.filter(s => s.date.startsWith(cm)).reduce((a,s) => a+s.total, 0);
+  const dailyExpenses = expenses.filter(e => e.date.startsWith(td)).reduce((a,e) => a+e.amount, 0);
+  const totalBal = DB.getTotalBalance();
+  const lowStock = DB.getProducts().filter(p => p.stock < 10);
 
-function renderSettings(){if(!Auth.user)return;$('#content').innerHTML='<div class="mb-6"><h2 class="font-display font-bold text-xl">Configuración</h2></div><div class="max-w-lg space-y-6"><div class="bg-card border border-brd rounded-xl p-6"><h3 class="font-display font-bold text-sm mb-4 flex items-center gap-2"><i class="fa-solid fa-user text-accent text-xs"></i>Cuenta</h3><div class="space-y-3"><div class="flex justify-between py-2 border-b border-brd/50"><span class="text-muted text-sm">Usuario</span><span class="text-sm font-medium">'+Auth.user.username+'</span></div><div class="flex justify-between py-2"><span class="text-muted text-sm">Creada</span><span class="text-sm">'+fmtDate(Auth.user.createdAt)+'</span></div></div></div><div class="bg-card border border-brd rounded-xl p-6"><h3 class="font-display font-bold text-sm mb-4 flex items-center gap-2"><i class="fa-solid fa-lock text-accent text-xs"></i>Cambiar Contraseña</h3><div class="space-y-4"><div><label class="block text-xs font-medium text-muted mb-1.5 uppercase tracking-wider">Actual</label><input id="set-cur" type="password" class="input-field"></div><div><label class="block text-xs font-medium text-muted mb-1.5 uppercase tracking-wider">Nueva</label><input id="set-new" type="password" class="input-field"></div><div><label class="block text-xs font-medium text-muted mb-1.5 uppercase tracking-wider">Confirmar</label><input id="set-conf" type="password" class="input-field"></div><div id="set-err" class="text-danger text-xs hidden"></div><button class="btn btn-primary" onclick="changePass()"><i class="fa-solid fa-key"></i>Actualizar</button></div></div><div class="bg-card border border-danger/30 rounded-xl p-6"><h3 class="font-display font-bold text-sm mb-2 flex items-center gap-2 text-danger"><i class="fa-solid fa-triangle-exclamation text-xs"></i>Zona de Peligro</h3><p class="text-muted text-xs mb-4">Acciones irreversibles.</p><button class="btn btn-ghost text-danger border-danger/30 hover:!border-danger/60 w-full justify-center" onclick="clearAll()"><i class="fa-solid fa-trash"></i>Borrar Todos los Datos</button></div></div>'}
-async function changePass(){const c=$('#set-cur').value,n=$('#set-new').value,f=$('#set-conf').value;if(!c||!n||!f){$('#set-err').textContent='Todos los campos obligatorios';$('#set-err').classList.remove('hidden');return}if(n.length<6){$('#set-err').textContent='Mínimo 6 caracteres';$('#set-err').classList.remove('hidden');return}if(n!==f){$('#set-err').textContent='No coinciden';$('#set-err').classList.remove('hidden');return}const h=await hashPassword(c,Auth.user.salt);if(h!==Auth.user.passwordHash){$('#set-err').textContent='Contraseña actual incorrecta';$('#set-err').classList.remove('hidden');return}const ns=genSalt(),nh=await hashPassword(n,ns);DB.updateUser(Auth.user.id,{salt:ns,passwordHash:nh});Auth.user.salt=ns;Auth.user.passwordHash=nh;Toast.show('Contraseña actualizada','success');$('#set-cur').value='';$('#set-new').value='';$('#set-conf').value='';$('#set-err').classList.add('hidden')}
-function clearAll(){Modal.confirm('¿Eliminar TODOS los datos? La cuenta se mantiene.',()=>{['products','sales','expenses','purchases','walletOps','wallets'].forEach(k=>localStorage.removeItem('sw_'+k));DB.init();Toast.show('Datos borrados','success');navigate('dashboard')})}
+  const last7 = [];
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date(); d.setDate(d.getDate()-i);
+    const ds = d.toISOString().split('T')[0];
+    const lb = d.toLocaleDateString('es-ES',{weekday:'short'});
+    last7.push({
+      label: lb,
+      sales: sales.filter(s => s.date.startsWith(ds)).reduce((a,s) => a+s.total, 0),
+      expenses: expenses.filter(e => e.date.startsWith(ds)).reduce((a,e) => a+e.amount, 0)
+    });
+  }
 
-function init(){DB.init();setTimeout(()=>{Auth.restore();if(Auth.user)showApp();else showLogin()},150)}
+  const allTx = [
+    ...sales.map(s => ({type:'sale',id:s.id,date:s.date,desc:'Venta #'+s.id.slice(-5).toUpperCase(),amount:s.total,profit:s.total-s.totalCost,walletId:s.walletId})),
+    ...expenses.map(e => ({type:'expense',id:e.id,date:e.date,desc:e.description||e.category,amount:e.amount,walletId:e.walletId})),
+    ...DB.getPurchases().map(p => ({type:'purchase',id:p.id,date:p.date,desc:'Compra: '+p.productName+' x'+p.quantity,amount:p.totalCost,walletId:p.walletId}))
+  ].sort((a,b) => new Date(b.date)-new Date(a.date)).slice(0, 8);
+
+  let walletsHTML = '';
+  wallets.forEach((w,i) => {
+    walletsHTML += '<div class="stat-card fade-up fade-up-'+Math.min(i+1,5)+'" style="--card-accent:'+w.color+';border-left:3px solid '+w.color+'">' +
+      '<div class="flex items-center justify-between mb-2"><span class="text-sm font-medium">'+w.name+'</span>' +
+      '<div class="w-3 h-3 rounded-full" style="background:'+w.color+'"></div></div>' +
+      '<div class="font-display font-bold text-xl">'+fmtCur(w.balance)+'</div></div>';
+  });
+
+  let txHTML = '';
+  if (allTx.length === 0) {
+    txHTML = '<p class="text-muted text-sm text-center py-8">Aún no hay transacciones</p>';
+  } else {
+    allTx.forEach(tx => {
+      const wColor = DB.getWalletColor(tx.walletId);
+      const wName = DB.getWalletName(tx.walletId);
+      const isSale = tx.type === 'sale';
+      const iconClass = isSale ? 'fa-arrow-up text-success' : 'fa-arrow-down text-danger';
+      const bgClass = isSale ? 'bg-success/10' : 'bg-danger/10';
+      const amtClass = isSale ? 'text-success' : 'text-danger';
+      const sign = isSale ? '+' : '-';
+      const walletLine = tx.walletId ? '<div class="text-muted text-xs" style="color:'+wColor+'">'+wName+'</div>' : '';
+      txHTML += '<div class="flex items-center justify-between py-2 border-b border-brd/50 last:border-0">' +
+        '<div class="flex items-center gap-3">' +
+          '<div class="w-7 h-7 rounded-lg flex items-center justify-center '+bgClass+'"><i class="fa-solid '+iconClass+' text-xs"></i></div>' +
+          '<div><div class="text-sm font-medium truncate max-w-[160px]">'+tx.desc+'</div>' +
+          '<div class="text-muted text-xs">'+fmtDateTime(tx.date)+'</div></div></div>' +
+        '<div class="text-right"><div class="text-sm font-bold '+amtClass+'">'+sign+fmtCur(tx.amount)+'</div>' +
+        walletLine + '</div>';
+    });
+  }
+
+  let lowHTML = '';
+  if (lowStock.length === 0) {
+    lowHTML = '<p class="text-muted text-sm text-center py-8"><i class="fa-solid fa-check-circle text-success text-2xl mb-2 block"></i>Todos bien surtidos</p>';
+  } else {
+    lowStock.forEach(p => {
+      lowHTML += '<div class="flex items-center justify-between py-2 border-b border-brd/50 last:border-0">' +
+        '<div><div class="text-sm font-medium">'+p.name+'</div><div class="text-muted text-xs">'+(p.sku||'Sin SKU')+'</div></div>' +
+        '<span class="badge badge-danger">'+p.stock+' rest.</span></div>';
+    });
+  }
+
+  $('#content').innerHTML =
+    '<div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-6">' +
+      '<div class="stat-card fade-up fade-up-1" style="--card-accent:#f59e0b"><div class="flex items-center justify-between mb-3"><span class="text-muted text-xs font-medium uppercase tracking-wider">Saldo Total</span><div class="w-8 h-8 rounded-lg bg-accent/10 flex items-center justify-center"><i class="fa-solid fa-wallet text-accent text-xs"></i></div></div><div class="font-display font-bold text-2xl '+(totalBal<0?'text-danger':'text-accent')+'">'+fmtCur(totalBal)+'</div><div class="text-muted text-xs mt-1">'+wallets.length+' billetera'+(wallets.length!==1?'s':'')+'</div></div>' +
+      '<div class="stat-card fade-up fade-up-2" style="--card-accent:#10b981"><div class="flex items-center justify-between mb-3"><span class="text-muted text-xs font-medium uppercase tracking-wider">Ventas de Hoy</span><div class="w-8 h-8 rounded-lg bg-success/10 flex items-center justify-center"><i class="fa-solid fa-arrow-trend-up text-success text-xs"></i></div></div><div class="font-display font-bold text-2xl text-success">'+fmtCur(dailySales)+'</div><div class="text-muted text-xs mt-1">'+todaySales.length+' transacción'+(todaySales.length!==1?'es':'')+'</div></div>' +
+      '<div class="stat-card fade-up fade-up-3" style="--card-accent:#ef4444"><div class="flex items-center justify-between mb-3"><span class="text-muted text-xs font-medium uppercase tracking-wider">Gastos de Hoy</span><div class="w-8 h-8 rounded-lg bg-danger/10 flex items-center justify-center"><i class="fa-solid fa-arrow-trend-down text-danger text-xs"></i></div></div><div class="font-display font-bold text-2xl text-danger">'+fmtCur(dailyExpenses)+'</div></div>' +
+      '<div class="stat-card fade-up fade-up-4" style="--card-accent:#8b5cf6"><div class="flex items-center justify-between mb-3"><span class="text-muted text-xs font-medium uppercase tracking-wider">Ganancia de Hoy</span><div class="w-8 h-8 rounded-lg bg-purple-500/10 flex items-center justify-center"><i class="fa-solid fa-chart-simple text-purple-400 text-xs"></i></div></div><div class="font-display font-bold text-2xl '+(dailyProfit>=0?'text-purple-400':'text-danger')+'">'+fmtCur(dailyProfit)+'</div><div class="text-muted text-xs mt-1">Ventas menos costo de productos</div></div>' +
+    '</div>' +
+    '<div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-6">' + walletsHTML + '</div>' +
+    '<div class="stat-card mb-6 fade-up fade-up-3" style="--card-accent:#3b82f6"><div class="flex items-center justify-between mb-4"><h3 class="font-display font-bold text-sm">Últimos 7 Días</h3><span class="badge badge-accent">Ventas vs Gastos</span></div><div style="height:220px"><canvas id="chart-7days"></canvas></div></div>' +
+    '<div class="grid grid-cols-1 xl:grid-cols-2 gap-4">' +
+      '<div class="stat-card fade-up fade-up-4" style="--card-accent:#06b6d4"><div class="flex items-center justify-between mb-4"><h3 class="font-display font-bold text-sm">Transacciones Recientes</h3><button class="text-xs text-accent hover:underline" onclick="navigate(\'transactions\')">Ver Todo</button></div><div class="space-y-2">'+txHTML+'</div></div>' +
+      '<div class="stat-card fade-up fade-up-5" style="--card-accent:#f59e0b"><div class="flex items-center justify-between mb-4"><h3 class="font-display font-bold text-sm">Alerta de Stock Bajo</h3><span class="badge '+(lowStock.length?'badge-danger':'badge-success')+'">'+lowStock.length+' artículo'+(lowStock.length!==1?'s':'')+'</span></div><div class="space-y-2">'+lowHTML+'</div></div>' +
+    '</div>';
+
+  const ctx7 = document.getElementById('chart-7days');
+  if (ctx7) {
+    dashboardCharts['7d'] = new Chart(ctx7, {
+      type: 'bar',
+      data: {
+        labels: last7.map(d => d.label),
+        datasets: [
+          {label:'Ventas', data:last7.map(d=>d.sales), backgroundColor:'rgba(16,185,129,0.7)', borderRadius:6, borderSkipped:false},
+          {label:'Gastos', data:last7.map(d=>d.expenses), backgroundColor:'rgba(239,68,68,0.7)', borderRadius:6, borderSkipped:false}
+        ]
+      },
+      options: {
+        responsive:true, maintainAspectRatio:false,
+        plugins:{legend:{position:'bottom',labels:{color:'#737373',padding:16,usePointStyle:true,pointStyleWidth:8,font:{size:11}}},
+        scales:{
+          x:{grid:{display:false},ticks:{color:'#525252',font:{size:11}}},
+          y:{grid:{color:'#1a1a1a'},ticks:{color:'#525252',font:{size:11},callback:v=>'$'+v},beginAtZero:true}
+        }
+      }
+    });
+  }
+}
+
+/* ===== BILLETERAS ===== */
+function renderWallets() {
+  const wallets = DB.getWallets(), ops = DB.getWalletOps();
+  let wCards = '';
+  wallets.forEach(w => {
+    wCards += '<div class="bg-card border border-brd rounded-xl overflow-hidden" style="border-top:3px solid '+w.color+'">' +
+      '<div class="p-5">' +
+        '<div class="flex items-center justify-between mb-3"><div class="flex items-center gap-2"><div class="w-3 h-3 rounded-full" style="background:'+w.color+'"></div><span class="font-display font-bold">'+w.name+'</span></div>' +
+        '<span class="badge '+(w.balance>=0?'badge-success':'badge-danger')+'">'+fmtCur(w.balance)+'</span></div>' +
+        '<div class="font-display font-bold text-3xl mb-4">'+fmtCur(w.balance)+'</div>' +
+        '<div class="grid grid-cols-2 gap-2">' +
+          '<button class="btn btn-ghost btn-sm justify-center text-xs" onclick="showRechargeModal(\''+w.id+'\')"><i class="fa-solid fa-plus text-success"></i>Recargar</button>' +
+          '<button class="btn btn-ghost btn-sm justify-center text-xs" onclick="showTransferModal(\''+w.id+'\')"><i class="fa-solid fa-arrow-right-arrow-left text-accent"></i>Transferir</button>' +
+          '<button class="btn btn-ghost btn-sm justify-center text-xs" onclick="showEditWalletModal(\''+w.id+'\')"><i class="fa-solid fa-pen"></i>Editar</button>' +
+          '<button class="btn btn-ghost btn-sm justify-center text-xs text-danger hover:!border-danger/50" onclick="deleteWallet(\''+w.id+'\')"><i class="fa-solid fa-trash"></i>Eliminar</button>' +
+        '</div></div></div>';
+  });
+
+  let opsHTML = '';
+  if (ops.length === 0) {
+    opsHTML = '<p class="text-muted text-sm text-center py-6">Sin operaciones</p>';
+  } else {
+    ops.sort((a,b) => new Date(b.date)-new Date(a.date)).forEach(o => {
+      if (o.type === 'recharge') {
+        opsHTML += '<div class="flex items-center justify-between py-2 border-b border-brd/50 last:border-0"><div class="flex items-center gap-3"><div class="w-7 h-7 rounded-lg bg-success/10 flex items-center justify-center"><i class="fa-solid fa-plus text-success text-xs"></i></div><div><div class="text-sm font-medium">Recarga a '+DB.getWalletName(o.walletId)+'</div><div class="text-muted text-xs">'+fmtDateTime(o.date)+'</div></div></div><span class="font-bold text-success text-sm">+'+fmtCur(o.amount)+'</span></div>';
+      } else {
+        opsHTML += '<div class="flex items-center justify-between py-2 border-b border-brd/50 last:border-0"><div class="flex items-center gap-3"><div class="w-7 h-7 rounded-lg bg-accent/10 flex items-center justify-center"><i class="fa-solid fa-arrow-right-arrow-left text-accent text-xs"></i></div><div><div class="text-sm font-medium">Transferencia: '+DB.getWalletName(o.fromWalletId)+' → '+DB.getWalletName(o.toWalletId)+'</div><div class="text-muted text-xs">'+fmtDateTime(o.date)+'</div></div></div><span class="font-bold text-accent text-sm">'+fmtCur(o.amount)+'</span></div>';
+      }
+    });
+  }
+
+  $('#content').innerHTML =
+    '<div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6"><div><h2 class="font-display font-bold text-xl">Billeteras</h2><p class="text-muted text-sm">Gestione sus métodos de pago</p></div>' +
+    '<button class="btn btn-primary" onclick="showCreateWalletModal()"><i class="fa-solid fa-plus"></i>Crear Billetera</button></div>' +
+    '<div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 mb-8">' + wCards + (wallets.length===0?'<div class="col-span-full text-center py-16"><i class="fa-solid fa-wallet text-4xl text-muted mb-4 block"></i><p class="text-muted">No hay billeteras</p></div>':'') + '</div>' +
+    '<div class="stat-card" style="--card-accent:#f59e0b"><h3 class="font-display font-bold text-sm mb-4">Recargas y Transferencias</h3><div class="space-y-2">' + opsHTML + '</div></div>';
+}
+
+function showCreateWalletModal() {
+  selectedColor = '#10b981';
+  let colorsHTML = '';
+  WALLET_COLORS.forEach(c => {
+    colorsHTML += '<div class="color-dot '+(c.value===selectedColor?'sel':'')+'" style="background:'+c.value+'" onclick="pickColor(\''+c.value+'\')"></div>';
+  });
+  Modal.show('<h3 class="font-display font-bold text-lg mb-5">Crear Billetera</h3><div class="space-y-4">' +
+    '<div><label class="block text-xs font-medium text-muted mb-1.5 uppercase tracking-wider">Nombre</label><input id="wm-name" type="text" class="input-field" placeholder="Ej. Nequi, Efectivo, Daviplata..."></div>' +
+    '<div><label class="block text-xs font-medium text-muted mb-1.5 uppercase tracking-wider">Color</label><div id="wm-colors" class="flex gap-3 flex-wrap">'+colorsHTML+'</div></div>' +
+    '<div id="wm-error" class="text-danger text-xs hidden"></div>' +
+    '<div class="flex gap-3 justify-end pt-2"><button class="btn btn-ghost" onclick="Modal.close()">Cancelar</button><button class="btn btn-primary" onclick="saveNewWallet()">Crear</button></div></div>');
+}
+
+function showEditWalletModal(id) {
+  const w = DB.getWallets().find(x => x.id===id);
+  if (!w) return;
+  selectedColor = w.color;
+  let colorsHTML = '';
+  WALLET_COLORS.forEach(c => {
+    colorsHTML += '<div class="color-dot '+(c.value===selectedColor?'sel':'')+'" style="background:'+c.value+'" onclick="pickColor(\''+c.value+'\')"></div>';
+  });
+  Modal.show('<h3 class="font-display font-bold text-lg mb-5">Editar Billetera</h3><div class="space-y-4">' +
+    '<div><label class="block text-xs font-medium text-muted mb-1.5 uppercase tracking-wider">Nombre</label><input id="wm-name" type="text" class="input-field" value="'+w.name+'"></div>' +
+    '<div><label class="block text-xs font-medium text-muted mb-1.5 uppercase tracking-wider">Color</label><div id="wm-colors" class="flex gap-3 flex-wrap">'+colorsHTML+'</div></div>' +
+    '<div id="wm-error" class="text-danger text-xs hidden"></div>' +
+    '<div class="flex gap-3 justify-end pt-2"><button class="btn btn-ghost" onclick="Modal.close()">Cancelar</button><button class="btn btn-primary" onclick="saveEditWallet(\''+id+'\')">Guardar</button></div></div>');
+}
+
+function pickColor(c) {
+  selectedColor = c;
+  $$('#wm-colors .color-dot').forEach(d => {
+    d.classList.toggle('sel', d.style.backgroundColor===c || rgbToHex(d.style.backgroundColor)===c);
+  });
+}
+function rgbToHex(rgb) {
+  if (rgb.startsWith('#')) return rgb;
+  const m = rgb.match(/(\d+)/g);
+  if (!m || m.length<3) return rgb;
+  return '#' + m.slice(0,3).map(x => parseInt(x).toString(16).padStart(2,'0')).join('');
+}
+
+function saveNewWallet() {
+  const n = $('#wm-name').value.trim();
+  if (!n) { $('#wm-error').textContent='El nombre es obligatorio'; $('#wm-error').classList.remove('hidden'); return; }
+  DB.addWallet({name:n, balance:0, color:selectedColor});
+  Toast.show('Billetera "'+n+'" creada', 'success');
+  Modal.close(); renderWallets(); updateWalletDisplay();
+}
+
+function saveEditWallet(id) {
+  const n = $('#wm-name').value.trim();
+  if (!n) { $('#wm-error').textContent='El nombre es obligatorio'; $('#wm-error').classList.remove('hidden'); return; }
+  DB.updateWallet(id, {name:n, color:selectedColor});
+  Toast.show('Billetera actualizada', 'success');
+  Modal.close(); renderWallets(); updateWalletDisplay();
+}
+
+function deleteWallet(id) {
+  const w = DB.getWallets().find(x => x.id===id);
+  if (!w) return;
+  if (w.balance !== 0) { Toast.show('La billetera debe estar en $0.00 para eliminarla', 'warn'); return; }
+  Modal.confirm('¿Eliminar la billetera "'+w.name+'"?', () => {
+    DB.deleteWallet(id);
+    Toast.show('Billetera eliminada', 'success');
+    renderWallets(); updateWalletDisplay();
+  });
+}
+
+function showRechargeModal(wid) {
+  const w = DB.getWallets().find(x => x.id===wid);
+  if (!w) return;
+  Modal.show('<h3 class="font-display font-bold text-lg mb-5">Recargar Billetera</h3><div class="space-y-4">' +
+    '<div class="flex items-center gap-3 bg-bg-alt rounded-xl p-4"><div class="w-3 h-3 rounded-full" style="background:'+w.color+'"></div><div><div class="font-medium text-sm">'+w.name+'</div><div class="text-muted text-xs">Saldo actual: '+fmtCur(w.balance)+'</div></div></div>' +
+    '<div><label class="block text-xs font-medium text-muted mb-1.5 uppercase tracking-wider">Monto a Recargar</label><input id="rc-amount" type="number" step="0.01" min="0.01" class="input-field" placeholder="0.00"></div>' +
+    '<div id="rc-error" class="text-danger text-xs hidden"></div>' +
+    '<div class="flex gap-3 justify-end pt-2"><button class="btn btn-ghost" onclick="Modal.close()">Cancelar</button><button class="btn btn-success" onclick="doRecharge(\''+wid+'\')"><i class="fa-solid fa-plus"></i>Recargar</button></div></div>');
+}
+
+function doRecharge(wid) {
+  const amt = parseFloat($('#rc-amount').value);
+  if (isNaN(amt) || amt <= 0) { $('#rc-error').textContent='Monto inválido'; $('#rc-error').classList.remove('hidden'); return; }
+  DB.creditWallet(wid, amt);
+  DB.addWalletOp({type:'recharge', walletId:wid, amount:amt});
+  Toast.show('Recargado '+fmtCur(amt)+' a '+DB.getWalletName(wid), 'success');
+  Modal.close(); renderWallets(); updateWalletDisplay();
+}
+
+function showTransferModal(fromId) {
+  const wallets = DB.getWallets();
+  let optsHTML = wallets.map(w => '<option value="'+w.id+'" '+(w.id===fromId?'selected':'')+'>'+w.name+' ('+fmtCur(w.balance)+')</option>').join('');
+  Modal.show('<h3 class="font-display font-bold text-lg mb-5">Transferir entre Billeteras</h3><div class="space-y-4">' +
+    '<div><label class="block text-xs font-medium text-muted mb-1.5 uppercase tracking-wider">Desde</label><select id="tf-from" class="input-field">'+optsHTML+'</select></div>' +
+    '<div class="text-center"><i class="fa-solid fa-arrow-down text-muted"></i></div>' +
+    '<div><label class="block text-xs font-medium text-muted mb-1.5 uppercase tracking-wider">Hacia</label><select id="tf-to" class="input-field">'+optsHTML+'</select></div>' +
+    '<div><label class="block text-xs font-medium text-muted mb-1.5 uppercase tracking-wider">Monto</label><input id="tf-amount" type="number" step="0.01" min="0.01" class="input-field" placeholder="0.00"></div>' +
+    '<div id="tf-error" class="text-danger text-xs hidden"></div>' +
+    '<div class="flex gap-3 justify-end pt-2"><button class="btn btn-ghost" onclick="Modal.close()">Cancelar</button><button class="btn btn-primary" onclick="doTransfer()"><i class="fa-solid fa-arrow-right-arrow-left"></i>Transferir</button></div></div>');
+}
+
+function doTransfer() {
+  const from = $('#tf-from').value, to = $('#tf-to').value, amt = parseFloat($('#tf-amount').value);
+  if (from === to) { $('#tf-error').textContent='Seleccione billeteras diferentes'; $('#tf-error').classList.remove('hidden'); return; }
+  if (isNaN(amt) || amt <= 0) { $('#tf-error').textContent='Monto inválido'; $('#tf-error').classList.remove('hidden'); return; }
+  const wFrom = DB.getWallets().find(w => w.id===from);
+  if (!wFrom || wFrom.balance < amt) { $('#tf-error').textContent='Saldo insuficiente'; $('#tf-error').classList.remove('hidden'); return; }
+  DB.debitWallet(from, amt);
+  DB.creditWallet(to, amt);
+  DB.addWalletOp({type:'transfer', fromWalletId:from, toWalletId:to, amount:amt});
+  Toast.show('Transferido '+fmtCur(amt)+' de '+DB.getWalletName(from)+' a '+DB.getWalletName(to), 'success');
+  Modal.close(); renderWallets(); updateWalletDisplay();
+}
+
+/* ===== INVENTARIO ===== */
+function renderInventory() {
+  const p = DB.getProducts();
+  $('#content').innerHTML =
+    '<div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6"><div><h2 class="font-display font-bold text-xl">Inventario de Productos</h2><p class="text-muted text-sm">'+p.length+' productos</p></div><button class="btn btn-primary" onclick="showProductModal()"><i class="fa-solid fa-plus"></i>Agregar Producto</button></div>' +
+    '<div class="mb-4"><input id="inv-search" type="text" class="input-field max-w-md" placeholder="Buscar productos..." oninput="filterInv()"></div>' +
+    '<div id="inv-list">' + renderProdList(p) + '</div>';
+}
+
+function renderProdList(p) {
+  if (!p.length) return '<div class="text-center py-16"><i class="fa-solid fa-box-open text-4xl text-muted mb-4 block"></i><p class="text-muted">No hay productos</p></div>';
+  let html = '<div class="grid gap-3">';
+  p.forEach(x => {
+    html += '<div class="bg-card border border-brd rounded-xl p-4 flex flex-col sm:flex-row sm:items-center gap-4 hover:border-accent/30 transition-colors" data-name="'+x.name.toLowerCase()+'" data-sku="'+(x.sku||'').toLowerCase()+'">' +
+      '<div class="flex-1 min-w-0"><div class="flex items-center gap-2 mb-1"><h4 class="font-display font-bold text-sm truncate">'+x.name+'</h4>' +
+      (x.stock<10 ? '<span class="badge badge-danger shrink-0">Stock Bajo</span>' : '') + '</div><div class="text-muted text-xs">SKU: '+(x.sku||'N/A')+'</div></div>' +
+      '<div class="flex flex-wrap gap-4 sm:gap-6 text-sm">' +
+        '<div><span class="text-muted text-xs block">Costo</span><span class="font-medium">'+fmtCur(x.costPrice)+'</span></div>' +
+        '<div><span class="text-muted text-xs block">Venta</span><span class="font-medium text-success">'+fmtCur(x.sellingPrice)+'</span></div>' +
+        '<div><span class="text-muted text-xs block">Margen</span><span class="font-medium text-accent">'+Math.round((x.sellingPrice-x.costPrice)/x.sellingPrice*100)+'%</span></div>' +
+        '<div><span class="text-muted text-xs block">Stock</span><span class="font-bold '+(x.stock<10?'text-danger':'text-fg')+'">'+x.stock+'</span></div></div>' +
+      '<div class="flex gap-2"><button class="btn btn-ghost btn-sm" onclick="showProductModal(\''+x.id+'\')"><i class="fa-solid fa-pen text-xs"></i></button>' +
+      '<button class="btn btn-ghost btn-sm text-danger hover:!border-danger/50" onclick="delProduct(\''+x.id+'\')"><i class="fa-solid fa-trash text-xs"></i></button></div></div>';
+  });
+  return html + '</div>';
+}
+
+function filterInv() {
+  const q = $('#inv-search').value.toLowerCase();
+  $('#inv-list').innerHTML = renderProdList(DB.getProducts().filter(p => p.name.toLowerCase().includes(q) || (p.sku||'').toLowerCase().includes(q)));
+}
+
+function showProductModal(id) {
+  const p = id ? DB.getProducts().find(x => x.id===id) : null;
+  Modal.show('<h3 class="font-display font-bold text-lg mb-5">'+(p?'Editar':'Agregar')+' Producto</h3><div class="space-y-4">' +
+    '<div><label class="block text-xs font-medium text-muted mb-1.5 uppercase tracking-wider">Nombre</label><input id="pm-name" type="text" class="input-field" value="'+(p?p.name:'')+'"></div>' +
+    '<div><label class="block text-xs font-medium text-muted mb-1.5 uppercase tracking-wider">SKU</label><input id="pm-sku" type="text" class="input-field" value="'+(p?p.sku||'':'')+'"></div>' +
+    '<div class="grid grid-cols-2 gap-4"><div><label class="block text-xs font-medium text-muted mb-1.5 uppercase tracking-wider">Costo</label><input id="pm-cost" type="number" step="0.01" min="0" class="input-field" value="'+(p?p.costPrice:'')+'"></div>' +
+    '<div><label class="block text-xs font-medium text-muted mb-1.5 uppercase tracking-wider">Venta</label><input id="pm-sell" type="number" step="0.01" min="0" class="input-field" value="'+(p?p.sellingPrice:'')+'"></div></div>' +
+    '<div><label class="block text-xs font-medium text-muted mb-1.5 uppercase tracking-wider">Stock</label><input id="pm-stock" type="number" min="0" class="input-field" value="'+(p?p.stock:'')+'"></div>' +
+    '<div id="pm-error" class="text-danger text-xs hidden"></div>' +
+    '<div class="flex gap-3 justify-end pt-2"><button class="btn btn-ghost" onclick="Modal.close()">Cancelar</button>' +
+    '<button class="btn btn-primary" onclick="saveProd(\''+(id||'')+'\')">'+(p?'Actualizar':'Agregar')+'</button></div></div>');
+}
+
+function saveProd(id) {
+  const n=$('#pm-name').value.trim(), s=$('#pm-sku').value.trim();
+  const c=parseFloat($('#pm-cost').value), sl=parseFloat($('#pm-sell').value), st=parseInt($('#pm-stock').value);
+  if(!n){$('#pm-error').textContent='Nombre obligatorio';$('#pm-error').classList.remove('hidden');return;}
+  if(isNaN(c)||c<0||isNaN(sl)||sl<0||isNaN(st)||st<0){$('#pm-error').textContent='Valores inválidos';$('#pm-error').classList.remove('hidden');return;}
+  if(id){DB.updateProduct(id,{name:n,sku:s,costPrice:c,sellingPrice:sl,stock:st});Toast.show('Producto actualizado','success');}
+  else{DB.addProduct({name:n,sku:s,costPrice:c,sellingPrice:sl,stock:st});Toast.show('Producto agregado','success');}
+  Modal.close(); renderInventory();
+}
+
+function delProduct(id) {
+  const p = DB.getProducts().find(x => x.id===id);
+  if (!p) return;
+  Modal.confirm('¿Eliminar "'+p.name+'"?', () => { DB.deleteProduct(id); Toast.show('Producto eliminado','success'); renderInventory(); });
+}
+
+/* ===== COMPRAR STOCK ===== */
+function renderBuyStock() {
+  const products = DB.getProducts(), wallets = DB.getWallets();
+  let optsHTML = products.map(p => '<option value="'+p.id+'" data-cost="'+p.costPrice+'" data-stock="'+p.stock+'">'+p.name+' (Stock: '+p.stock+')</option>').join('');
+  $('#content').innerHTML =
+    '<div class="mb-6"><h2 class="font-display font-bold text-xl">Comprar Stock</h2><p class="text-muted text-sm">Reponga inventario pagando desde una billetera</p></div>' +
+    '<div class="max-w-lg"><div class="bg-card border border-brd rounded-xl p-6 space-y-5">' +
+    '<div><label class="block text-xs font-medium text-muted mb-1.5 uppercase tracking-wider">Producto</label><select id="bs-prod" class="input-field" onchange="updateBuyCost()"><option value="">Seleccione...</option>'+optsHTML+'</select></div>' +
+    '<div class="grid grid-cols-2 gap-4"><div><label class="block text-xs font-medium text-muted mb-1.5 uppercase tracking-wider">Cantidad</label><input id="bs-qty" type="number" min="1" value="1" class="input-field" oninput="updateBuyCost()"></div>' +
+    '<div><label class="block text-xs font-medium text-muted mb-1.5 uppercase tracking-wider">Costo Unitario</label><input id="bs-cost" type="number" step="0.01" min="0" class="input-field" oninput="updateBuyCost()"></div></div>' +
+    '<div class="bg-bg-alt rounded-xl p-4"><div class="flex justify-between text-sm"><span class="text-muted">Total a Pagar</span><span id="bs-total" class="font-display font-bold">$0.00</span></div></div>' +
+    '<div><label class="block text-xs font-medium text-muted mb-1.5 uppercase tracking-wider">Pagar desde</label>'+walletOpts('','bs-wallet')+'</div>' +
+    '<div id="bs-error" class="text-danger text-xs hidden"></div>' +
+    '<button class="btn btn-danger w-full justify-center py-3" onclick="doBuyStock()"><i class="fa-solid fa-truck"></i>Completar Compra</button></div></div>';
+}
+
+function updateBuyCost() {
+  const sel = $('#bs-prod');
+  const opt = sel.selectedOptions[0];
+  if (opt && opt.dataset.cost) $('#bs-cost').value = opt.dataset.cost;
+  const q = parseInt($('#bs-qty').value)||0, c = parseFloat($('#bs-cost').value)||0;
+  $('#bs-total').textContent = fmtCur(q * c);
+}
+
+function doBuyStock() {
+  const pid=$('#bs-prod').value, wid=$('#bs-wallet').value, qty=parseInt($('#bs-qty').value), uc=parseFloat($('#bs-cost').value);
+  if(!pid){$('#bs-error').textContent='Seleccione un producto';$('#bs-error').classList.remove('hidden');return;}
+  if(!wid){$('#bs-error').textContent='Seleccione una billetera';$('#bs-error').classList.remove('hidden');return;}
+  if(isNaN(qty)||qty<1||isNaN(uc)||uc<0){$('#bs-error').textContent='Valores inválidos';$('#bs-error').classList.remove('hidden');return;}
+  const total = qty * uc;
+  const w = DB.getWallets().find(x => x.id===wid);
+  if (!w || w.balance < total) { $('#bs-error').textContent='Saldo insuficiente'; $('#bs-error').classList.remove('hidden'); return; }
+  const p = DB.getProducts().find(x => x.id===pid);
+  DB.updateProduct(pid, {stock:p.stock+qty, costPrice:uc});
+  DB.debitWallet(wid, total);
+  DB.addPurchase({productId:pid, productName:p.name, quantity:qty, unitCost:uc, totalCost:total, walletId:wid});
+  Toast.show('Comprado '+qty+'x '+p.name+' por '+fmtCur(total), 'success');
+  renderBuyStock(); updateWalletDisplay();
+}
+
+/* ===== NUEVA VENTA ===== */
+let saleCart = [];
+
+function renderNewSale() {
+  saleCart = [];
+  const products = DB.getProducts(), wallets = DB.getWallets();
+  let prodHTML = renderSaleProd(products);
+  $('#content').innerHTML =
+    '<div class="mb-6"><h2 class="font-display font-bold text-xl">Registrar una Venta</h2></div>' +
+    '<div class="grid grid-cols-1 xl:grid-cols-5 gap-6">' +
+      '<div class="xl:col-span-3"><div class="mb-4"><input id="sale-search" type="text" class="input-field" placeholder="Buscar productos..." oninput="filterSaleProd()"></div><div id="sale-products" class="space-y-2 max-h-[55vh] overflow-y-auto pr-1">'+prodHTML+'</div></div>' +
+      '<div class="xl:col-span-2"><div class="bg-card border border-brd rounded-xl p-5 sticky top-20">' +
+        '<h3 class="font-display font-bold text-sm mb-4 flex items-center gap-2"><i class="fa-solid fa-cart-shopping text-accent text-xs"></i>Resumen</h3>' +
+        '<div class="mb-4"><label class="block text-xs font-medium text-muted mb-1.5 uppercase tracking-wider">Recibir en</label>'+walletOpts('','sale-wallet')+'</div>' +
+        '<div id="sale-cart" class="space-y-2 mb-4 min-h-[60px]"><p class="text-muted text-sm text-center py-4">Carrito vacío</p></div>' +
+        '<div class="border-t border-brd pt-4 space-y-2">' +
+          '<div class="flex justify-between text-sm"><span class="text-muted">Total</span><span id="sale-total" class="font-bold text-success">$0.00</span></div>' +
+          '<div class="flex justify-between text-sm"><span class="text-muted">Costo</span><span id="sale-cost" class="font-medium">$0.00</span></div>' +
+          '<div class="flex justify-between text-sm"><span class="text-muted">Ganancia</span><span id="sale-profit" class="font-bold text-accent">$0.00</span></div>' +
+        '</div>' +
+        '<button id="sale-complete-btn" class="btn btn-success w-full justify-center mt-4 opacity-50 pointer-events-none" onclick="completeSale()"><i class="fa-solid fa-check"></i>Completar Venta</button>' +
+      '</div></div></div>';
+}
+
+function renderSaleProd(products) {
+  return products.filter(p => p.stock > 0).map(p =>
+    '<div class="bg-card border border-brd rounded-xl p-4 flex items-center gap-4 hover:border-accent/20 transition-colors sale-product" data-name="'+p.name.toLowerCase()+'">' +
+      '<div class="flex-1 min-w-0"><div class="font-medium text-sm truncate">'+p.name+'</div><div class="text-muted text-xs">'+fmtCur(p.sellingPrice)+' · Stock: '+p.stock+'</div></div>' +
+      '<div class="flex items-center gap-2">' +
+        '<input type="number" min="1" max="'+p.stock+'" value="1" class="input-field w-16 text-center text-sm py-1.5 sale-qty" data-id="'+p.id+'">' +
+        '<button class="btn btn-primary btn-sm" onclick="addToCart(\''+p.id+'\')"><i class="fa-solid fa-plus text-xs"></i></button></div></div>'
+  ).join('') || '<p class="text-muted text-sm text-center py-8">Sin stock</p>';
+}
+
+function filterSaleProd() {
+  const q = $('#sale-search').value.toLowerCase();
+  $('#sale-products').innerHTML = renderSaleProd(DB.getProducts().filter(p => p.name.toLowerCase().includes(q)));
+}
+
+function addToCart(pid) {
+  const p = DB.getProducts().find(x => x.id===pid);
+  if (!p) return;
+  const qty = parseInt(document.querySelector('.sale-qty[data-id="'+pid+'"]')?.value) || 1;
+  if (qty > p.stock) { Toast.show('Solo '+p.stock+' disponibles', 'warn'); return; }
+  const ex = saleCart.find(c => c.productId===pid);
+  if (ex) {
+    if (ex.qty+qty > p.stock) { Toast.show('Solo '+(p.stock-ex.qty)+' más', 'warn'); return; }
+    ex.qty += qty;
+  } else {
+    saleCart.push({productId:p.id, name:p.name, costPrice:p.costPrice, sellingPrice:p.sellingPrice, qty});
+  }
+  updateCartUI();
+  Toast.show('+'+qty+'x '+p.name, 'success');
+}
+
+function updateCartUI() {
+  if (!saleCart.length) {
+    $('#sale-cart').innerHTML = '<p class="text-muted text-sm text-center py-4">Carrito vacío</p>';
+    $('#sale-total').textContent = '$0.00';
+    $('#sale-cost').textContent = '$0.00';
+    $('#sale-profit').textContent = '$0.00';
+    $('#sale-complete-btn').classList.add('opacity-50','pointer-events-none');
+    return;
+  }
+  $('#sale-complete-btn').classList.remove('opacity-50','pointer-events-none');
+  let t = 0, c = 0;
+  let html = '';
+  saleCart.forEach((item, i) => {
+    const s = item.sellingPrice * item.qty;
+    c += item.costPrice * item.qty;
+    t += s;
+    html += '<div class="flex items-center justify-between py-2 border-b border-brd/50 last:border-0"><div class="min-w-0 flex-1"><div class="text-sm font-medium truncate">'+item.name+'</div><div class="text-muted text-xs">'+item.qty+' x '+fmtCur(item.sellingPrice)+'</div></div><div class="flex items-center gap-2"><span class="text-sm font-medium">'+fmtCur(s)+'</span><button class="text-muted hover:text-danger text-xs" onclick="saleCart.splice('+i+',1);updateCartUI()"><i class="fa-solid fa-xmark"></i></button></div></div>';
+  });
+  $('#sale-cart').innerHTML = html;
+  $('#sale-total').textContent = fmtCur(t);
+  $('#sale-cost').textContent = fmtCur(c);
+  $('#sale-profit').textContent = fmtCur(t - c);
+}
+
+function completeSale() {
+  if (!saleCart.length) return;
+  const wid = $('#sale-wallet').value;
+  if (!wid) { Toast.show('Seleccione una billetera', 'warn'); return; }
+  const total = saleCart.reduce((a,i) => a+i.sellingPrice*i.qty, 0);
+  const tc = saleCart.reduce((a,i) => a+i.costPrice*i.qty, 0);
+  saleCart.forEach(item => {
+    const p = DB.getProducts().find(x => x.id===item.productId);
+    if (p) DB.updateProduct(p.id, {stock:p.stock-item.qty});
+  });
+  DB.addSale({items:[...saleCart], total:total, totalCost:tc, walletId:wid});
+  DB.creditWallet(wid, total);
+  Toast.show('Venta: '+fmtCur(total)+' a '+DB.getWalletName(wid), 'success');
+  updateWalletDisplay();
+  renderNewSale();
+}
+
+/* ===== NUEVO GASTO ===== */
+const EXP_CATS = ['Renta','Servicios','Insumos','Transporte','Alimentos y Bebidas','Mantenimiento','Marketing','Salarios','Varios'];
+
+function renderNewExpense() {
+  const wallets = DB.getWallets();
+  let catsHTML = EXP_CATS.map(c => '<option value="'+c+'">'+c+'</option>').join('');
+  $('#content').innerHTML =
+    '<div class="mb-6"><h2 class="font-display font-bold text-xl">Registrar un Gasto</h2></div>' +
+    '<div class="max-w-lg"><div class="bg-card border border-brd rounded-xl p-6 space-y-5">' +
+    '<div><label class="block text-xs font-medium text-muted mb-1.5 uppercase tracking-wider">Categoría</label><select id="exp-cat" class="input-field">'+catsHTML+'</select></div>' +
+    '<div><label class="block text-xs font-medium text-muted mb-1.5 uppercase tracking-wider">Descripción</label><input id="exp-desc" type="text" class="input-field" placeholder="Descripción del gasto"></div>' +
+    '<div><label class="block text-xs font-medium text-muted mb-1.5 uppercase tracking-wider">Monto</label><input id="exp-amount" type="number" step="0.01" min="0.01" class="input-field" placeholder="0.00"></div>' +
+    '<div><label class="block text-xs font-medium text-muted mb-1.5 uppercase tracking-wider">Pagar desde</label>'+walletOpts('','exp-wallet')+'</div>' +
+    '<div id="exp-error" class="text-danger text-xs hidden"></div>' +
+    '<button class="btn btn-danger w-full justify-center py-3" onclick="doExpense()"><i class="fa-solid fa-minus"></i>Registrar Gasto</button></div></div>';
+}
+
+function doExpense() {
+  const cat=$('#exp-cat').value, desc=$('#exp-desc').value.trim(), amt=parseFloat($('#exp-amount').value), wid=$('#exp-wallet').value;
+  if(!desc){$('#exp-error').textContent='Descripción obligatoria';$('#exp-error').classList.remove('hidden');return;}
+  if(isNaN(amt)||amt<=0){$('#exp-error').textContent='Monto inválido';$('#exp-error').classList.remove('hidden');return;}
+  if(!wid){$('#exp-error').textContent='Seleccione una billetera';$('#exp-error').classList.remove('hidden');return;}
+  const w = DB.getWallets().find(x => x.id===wid);
+  if (w && amt > w.balance) Toast.show('Advertencia: excede saldo en '+w.name, 'warn');
+  DB.addExpense({category:cat, description:desc, amount:amt, walletId:wid});
+  DB.debitWallet(wid, amt);
+  Toast.show('Gasto '+fmtCur(amt)+' de '+DB.getWalletName(wid), 'success');
+  updateWalletDisplay();
+  renderNewExpense();
+}
+
+/* ===== HISTORIAL ===== */
+function renderTransactions() {
+  const sales=DB.getSales(), expenses=DB.getExpenses(), purchases=DB.getPurchases();
+  let allTx = [
+    ...sales.map(s => ({type:'sale',id:s.id,date:s.date,desc:'Venta #'+s.id.slice(-5).toUpperCase(),amount:s.total,profit:s.total-s.totalCost,walletId:s.walletId, detail:s.items})),
+    ...expenses.map(e => ({type:'expense',id:e.id,date:e.date,desc:e.description,category:e.category,amount:e.amount,walletId:e.walletId})),
+    ...purchases.map(p => ({type:'purchase',id:p.id,date:p.date,desc:'Compra: '+p.productName+' x'+p.quantity,amount:p.totalCost,walletId:p.walletId}))
+  ].sort((a,b) => new Date(b.date)-new Date(a.date));
+
+  $('#content').innerHTML =
+    '<div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6"><div><h2 class="font-display font-bold text-xl">Historial</h2><p class="text-muted text-sm">'+allTx.length+' transacciones</p></div>' +
+    '<select id="tx-filter" class="input-field w-auto text-sm" onchange="filterTx()"><option value="all">Todos</option><option value="sale">Ventas</option><option value="expense">Gastos</option><option value="purchase">Compras Stock</option></select></div>' +
+    '<div id="tx-list">' + renderTxList(allTx) + '</div>';
+}
+
+function renderTxList(tx) {
+  if (!tx.length) return '<div class="text-center py-16"><i class="fa-solid fa-receipt text-4xl text-muted mb-4 block"></i><p class="text-muted">Sin transacciones</p></div>';
+  let html = '';
+  tx.forEach(t => {
+    const wC = DB.getWalletColor(t.walletId), wN = DB.getWalletName(t.walletId);
+    const iC = t.type==='sale' ? 'fa-arrow-up text-success' : 'fa-arrow-down text-danger';
+    const aC = t.type==='sale' ? 'text-success' : 'text-danger';
+    const sign = t.type==='sale' ? '+' : '-';
+    const catBadge = t.category ? '<span class="badge badge-warn">'+t.category+'</span>' : '';
+    const stockBadge = t.type==='purchase' ? '<span class="badge badge-accent">Stock</span>' : '';
+    const profitLine = t.type==='sale' ? '<div class="text-muted text-xs">Gan: '+fmtCur(t.profit)+'</div>' : '';
+    html += '<div class="bg-card border border-brd rounded-xl p-4 flex items-center gap-4 cursor-pointer hover:border-accent/20 transition-colors" onclick="showTxDetail(\''+t.id+'\',\''+t.type+'\')">' +
+      '<div class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style="background:'+wC+'15"><i class="fa-solid '+iC+' text-xs"></i></div>' +
+      '<div class="flex-1 min-w-0"><div class="flex items-center gap-2 flex-wrap"><span class="font-medium text-sm truncate">'+t.desc+'</span>'+catBadge+stockBadge+'</div>' +
+      '<div class="text-muted text-xs">'+fmtDateTime(t.date)+' · <span style="color:'+wC+'">'+wN+'</span></div></div>' +
+      '<div class="text-right shrink-0"><div class="font-display font-bold '+aC+'">'+sign+fmtCur(t.amount)+'</div>'+profitLine+'</div></div>';
+  });
+  return html;
+}
+
+function filterTx() {
+  const f = $('#tx-filter').value;
+  const s=DB.getSales(), e=DB.getExpenses(), p=DB.getPurchases();
+  let all = [
+    ...s.map(x=>({type:'sale',id:x.id,date:x.date,desc:'Venta #'+x.id.slice(-5).toUpperCase(),amount:x.total,profit:x.total-x.totalCost,walletId:x.walletId,detail:x.items})),
+    ...e.map(x=>({type:'expense',id:x.id,date:x.date,desc:x.description,category:x.category,amount:x.amount,walletId:x.walletId})),
+    ...p.map(x=>({type:'purchase',id:x.id,date:x.date,desc:'Compra: '+x.productName+' x'+x.quantity,amount:x.totalCost,walletId:x.walletId}))
+  ].sort((a,b) => new Date(b.date)-new Date(a.date));
+  if (f !== 'all') all = all.filter(t => t.type===f);
+  $('#tx-list').innerHTML = renderTxList(all);
+}
+
+function showTxDetail(id, type) {
+  if (type==='sale') {
+    const s = DB.getSales().find(x => x.id===id);
+    if (!s) return;
+    let itemsHTML = s.items.map(i =>
+      '<div class="flex justify-between py-2 border-b border-brd/50 text-sm"><div><span class="font-medium">'+i.name+'</span> <span class="text-muted">x'+i.qty+'</span></div><span class="font-medium">'+fmtCur(i.sellingPrice*i.qty)+'</span></div>'
+    ).join('');
+    Modal.show('<h3 class="font-display font-bold text-lg mb-1">Detalle de Venta</h3>' +
+      '<p class="text-muted text-xs mb-4">'+fmtDateTime(s.date)+' · <span style="color:'+DB.getWalletColor(s.walletId)+'">'+DB.getWalletName(s.walletId)+'</span></p>' +
+      '<div class="space-y-2 mb-4">'+itemsHTML+'</div>' +
+      '<div class="bg-bg-alt rounded-xl p-4 space-y-1">' +
+      '<div class="flex justify-between text-sm"><span class="text-muted">Total</span><span class="font-bold text-success">'+fmtCur(s.total)+'</span></div>' +
+      '<div class="flex justify-between text-sm"><span class="text-muted">Costo</span><span>'+fmtCur(s.totalCost)+'</span></div>' +
+      '<div class="flex justify-between text-sm"><span class="text-muted">Ganancia</span><span class="font-bold text-accent">'+fmtCur(s.total-s.totalCost)+'</span></div>' +
+      '</div><div class="flex justify-end mt-4"><button class="btn btn-ghost" onclick="Modal.close()">Cerrar</button></div>');
+  } else if (type==='expense') {
+    const e = DB.getExpenses().find(x => x.id===id);
+    if (!e) return;
+    Modal.show('<h3 class="font-display font-bold text-lg mb-1">Detalle de Gasto</h3>' +
+      '<p class="text-muted text-xs mb-4">'+fmtDateTime(e.date)+' · <span style="color:'+DB.getWalletColor(e.walletId)+'">'+DB.getWalletName(e.walletId)+'</span></p>' +
+      '<div class="bg-bg-alt rounded-xl p-4 space-y-1">' +
+      '<div class="flex justify-between text-sm"><span class="text-muted">Categoría</span><span class="badge badge-warn">'+e.category+'</span></div>' +
+      '<div class="flex justify-between text-sm"><span class="text-muted">Descripción</span><span class="font-medium">'+e.description+'</span></div>' +
+      '<div class="flex justify-between text-sm"><span class="text-muted">Monto</span><span class="font-bold text-danger">'+fmtCur(e.amount)+'</span></div>' +
+      '</div><div class="flex justify-end mt-4"><button class="btn btn-ghost" onclick="Modal.close()">Cerrar</button></div>');
+  } else {
+    const p = DB.getPurchases().find(x => x.id===id);
+    if (!p) return;
+    Modal.show('<h3 class="font-display font-bold text-lg mb-1">Detalle de Compra</h3>' +
+      '<p class="text-muted text-xs mb-4">'+fmtDateTime(p.date)+' · <span style="color:'+DB.getWalletColor(p.walletId)+'">'+DB.getWalletName(p.walletId)+'</span></p>' +
+      '<div class="bg-bg-alt rounded-xl p-4 space-y-1">' +
+      '<div class="flex justify-between text-sm"><span class="text-muted">Producto</span><span class="font-medium">'+p.productName+'</span></div>' +
+      '<div class="flex justify-between text-sm"><span class="text-muted">Cantidad</span><span>'+p.quantity+'</span></div>' +
+      '<div class="flex justify-between text-sm"><span class="text-muted">Costo Unitario</span><span>'+fmtCur(p.unitCost)+'</span></div>' +
+      '<div class="flex justify-between text-sm"><span class="text-muted">Total</span><span class="font-bold text-danger">'+fmtCur(p.totalCost)+'</span></div>' +
+      '</div><div class="flex justify-end mt-4"><button class="btn btn-ghost" onclick="Modal.close()">Cerrar</button></div>');
+  }
+}
+
+/* ===== ANÁLISIS ===== */
+let analyticsCharts = {};
+function destroyAC() { Object.values(analyticsCharts).forEach(c => { if(c) c.destroy(); }); analyticsCharts = {}; }
+
+function renderAnalytics() {
+  destroyAC();
+  const sales = DB.getSales(), expenses = DB.getExpenses(), cm = currentMonth();
+  const cf = {family:"'DM Sans',sans-serif"};
+
+  const last30 = [];
+  for (let i = 29; i >= 0; i--) {
+    const d = new Date(); d.setDate(d.getDate()-i);
+    const ds = d.toISOString().split('T')[0];
+    const lb = d.toLocaleDateString('es-ES',{day:'numeric',month:'short'});
+    last30.push({
+      label:lb,
+      sales: sales.filter(s => s.date.startsWith(ds)).reduce((a,s) => a+s.total, 0),
+      profit: sales.filter(s => s.date.startsWith(ds)).reduce((a,s) => a+(s.total-s.totalCost), 0),
+      expenses: expenses.filter(e => e.date.startsWith(ds)).reduce((a,e) => a+e.amount, 0)
+    });
+  }
+
+  const catMap = {};
+  expenses.forEach(e => { catMap[e.category] = (catMap[e.category]||0) + e.amount; });
+  const catL = Object.keys(catMap), catV = Object.values(catMap);
+  const catC = ['#f59e0b','#ef4444','#10b981','#3b82f6','#8b5cf6','#ec4899','#06b6d4','#f97316','#6366f1'];
+
+  const prodRev = {};
+  sales.forEach(s => s.items.forEach(it => {
+    if (!prodRev[it.productId]) prodRev[it.productId] = {name:it.name, revenue:0};
+    prodRev[it.productId].revenue += it.sellingPrice * it.qty;
+  }));
+  const topP = Object.values(prodRev).sort((a,b) => b.revenue-a.revenue).slice(0,6);
+
+  const mS = sales.filter(s => s.date.startsWith(cm)).reduce((a,s) => a+s.total, 0);
+  const mP = sales.filter(s => s.date.startsWith(cm)).reduce((a,s) => a+(s.total-s.totalCost), 0);
+  const mE = expenses.filter(e => e.date.startsWith(cm)).reduce((a,e) => a+e.amount, 0);
+  const lm = cm.split('-'); lm[1] = String(Math.max(1,parseInt(lm[1])-1)).padStart(2,'0');
+  const lms = lm.join('-');
+  const lmS = sales.filter(s => s.date.startsWith(lms)).reduce((a,s) => a+s.total, 0);
+  const lmP = sales.filter(s => s.date.startsWith(lms)).reduce((a,s) => a+(s.total-s.totalCost), 0);
+  const lmE = expenses.filter(e => e.date.startsWith(lms)).reduce((a,e) => a+e.amount, 0);
+
+  const pctChange = (cur, prev) => {
+    if (prev <= 0) return 'Sin datos';
+    const diff = Math.round((cur-prev)/prev*100);
+    return (cur>=prev?'+':'')+diff+'% vs anterior';
+  };
+
+  $('#content').innerHTML =
+    '<div class="mb-6"><h2 class="font-display font-bold text-xl">Análisis</h2></div>' +
+    '<div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">' +
+      '<div class="stat-card fade-up fade-up-1" style="--card-accent:#10b981"><div class="text-muted text-xs font-medium uppercase tracking-wider mb-2">Ventas del Mes</div><div class="font-display font-bold text-2xl text-success">'+fmtCur(mS)+'</div><div class="text-xs mt-1 '+(lmS>0?(mS>=lmS?'text-success':'text-danger'):'text-muted')+'">'+pctChange(mS,lmS)+'</div></div>' +
+      '<div class="stat-card fade-up fade-up-2" style="--card-accent:#ef4444"><div class="text-muted text-xs font-medium uppercase tracking-wider mb-2">Gastos del Mes</div><div class="font-display font-bold text-2xl text-danger">'+fmtCur(mE)+'</div><div class="text-xs mt-1 '+(lmE>0?(mE<=lmE?'text-success':'text-danger'):'text-muted')+'">'+pctChange(mE,lmE, true)+'</div></div>' +
+      '<div class="stat-card fade-up fade-up-3" style="--card-accent:#8b5cf6"><div class="text-muted text-xs font-medium uppercase tracking-wider mb-2">Ganancia del Mes</div><div class="font-display font-bold text-2xl text-purple-400">'+fmtCur(mP)+'</div><div class="text-xs mt-1 '+(lmP>0?(mP>=lmP?'text-success':'text-danger'):'text-muted')+'">'+pctChange(mP,lmP)+'</div></div>' +
+    '</div>' +
+    '<div class="grid grid-cols-1 xl:grid-cols-2 gap-4 mb-6">' +
+      '<div class="stat-card fade-up fade-up-3" style="--card-accent:#10b981"><h3 class="font-display font-bold text-sm mb-4">Tendencia (30 Días)</h3><div style="height:260px"><canvas id="chart-trend"></canvas></div></div>' +
+      '<div class="stat-card fade-up fade-up-4" style="--card-accent:#f59e0b"><h3 class="font-display font-bold text-sm mb-4">Gastos por Categoría</h3><div style="height:260px;display:flex;align-items:center;justify-content:center">'+(catL.length?'<canvas id="chart-cat"></canvas>':'<p class="text-muted text-sm">Sin datos</p>')+'</div></div>' +
+    '</div>' +
+    '<div class="grid grid-cols-1 xl:grid-cols-2 gap-4">' +
+      '<div class="stat-card fade-up fade-up-4" style="--card-accent:#3b82f6"><h3 class="font-display font-bold text-sm mb-4">Top Productos</h3><div style="height:260px;display:flex;align-items:center;justify-content:center">'+(topP.length?'<canvas id="chart-prod"></canvas>':'<p class="text-muted text-sm">Sin datos</p>')+'</div></div>' +
+      '<div class="stat-card fade-up fade-up-5" style="--card-accent:#06b6d4"><h3 class="font-display font-bold text-sm mb-4">Balance Neto Diario</h3><div style="height:260px"><canvas id="chart-net"></canvas></div></div>' +
+    '</div>';
+
+  const chartOpts = {
+    responsive:true, maintainAspectRatio:false, interaction:{mode:'index',intersect:false},
+    plugins:{legend:{position:'bottom',labels:{color:'#737373',padding:16,usePointStyle:true,pointStyleWidth:8,font:{size:11,...cf}}},
+    scales:{
+      x:{grid:{display:false},ticks:{color:'#525252',font:{size:10},maxTicksLimit:8}},
+      y:{grid:{color:'#1a1a1a'},ticks:{color:'#525252',font:{size:10},callback:v=>'$'+v},beginAtZero:true}
+    }
+  };
+
+  const c1 = document.getElementById('chart-trend');
+  if (c1) {
+    analyticsCharts.trend = new Chart(c1, {
+      type:'line',
+      data:{labels:last30.map(d => d.label), datasets:[
+        {label:'Ventas', data:last30.map(d=>d.sales), borderColor:'#10b981', backgroundColor:'rgba(16,185,129,0.08)', fill:true, tension:.4, pointRadius:0, borderWidth:2},
+        {label:'Ganancia', data:last30.map(d=>d.profit), borderColor:'#8b5cf6', backgroundColor:'rgba(139,92,246,0.08)', fill:true, tension:.4, pointRadius:0, borderWidth:2}
+      ]},
+      options: chartOpts
+    });
+  }
+
+  const c2 = document.getElementById('chart-cat');
+  if (c2 && catL.length) {
+    analyticsCharts.cat = new Chart(c2, {
+      type:'doughnut',
+      data:{labels:catL, datasets:[{data:catV, backgroundColor:catC.slice(0,catL.length), borderWidth:0, hoverOffset:8}]},
+      options:{responsive:true, maintainAspectRatio:false, cutout:'65%',
+        plugins:{legend:{position:'right',labels:{color:'#a3a3a3', padding:10, usePointStyle:true, pointStyleWidth:8, font:{size:11,...cf}}}}
+    });
+  }
+
+  const c3 = document.getElementById('chart-prod');
+  if (c3 && topP.length) {
+    analyticsCharts.prod = new Chart(c3, {
+      type:'bar',
+      data:{labels:topP.map(p => p.name), datasets:[{label:'Ingresos',data:topP.map(p => p.revenue), backgroundColor:'rgba(59,130,246,0.7)', borderRadius:6, borderSkipped:false}]},
+      options:{indexAxis:'y', responsive:true, maintainAspectRatio:false,
+        plugins:{legend:{display:false}},
+        scales:{
+          x:{grid:{color:'#1a1a1a'}, ticks:{color:'#525252', font:{size:10}, callback:v=>'$'+v}},
+          y:{grid:{display:false}, ticks:{color:'#a3a3a3', font:{size:11,...cf}}
+        }}
+    });
+  }
+
+  const c4 = document.getElementById('chart-net');
+  if (c4) {
+    analyticsCharts.net = new Chart(c4, {
+      type:'bar',
+      data:{labels:last30.map(d => d.label), datasets:[{
+        label:'Neto',
+        data:last30.map(d => d.sales-d.expenses),
+        backgroundColor:last30.map(d => (d.sales-d.expenses)>=0 ? 'rgba(6,182,212,0.7)' : 'rgba(239,68,68,0.7)'),
+        borderRadius:4, borderSkipped:false
+      }]},
+      options:{responsive:true, maintainAspectRatio:false,
+        plugins:{legend:{display:false}},
+        scales:{
+          x:{grid:{display:false}, ticks:{color:'#525252', font:{size:10}, maxTicksLimit:8}},
+          y:{grid:{color:'#1a1a1a'}, ticks:{color:'#525252', font:{size:10}, callback:v=>'$'+v}}
+        }}
+    });
+  }
+}
+
+/* ===== CONFIGURACIÓN ===== */
+function renderSettings() {
+  if (!Auth.user) return;
+  $('#content').innerHTML =
+    '<div class="mb-6"><h2 class="font-display font-bold text-xl">Configuración</h2></div>' +
+    '<div class="max-w-lg space-y-6">' +
+      '<div class="bg-card border border-brd rounded-xl p-6"><h3 class="font-display font-bold text-sm mb-4 flex items-center gap-2"><i class="fa-solid fa-user text-accent text-xs"></i>Cuenta</h3>' +
+        '<div class="space-y-3"><div class="flex justify-between py-2 border-b border-brd/50"><span class="text-muted text-sm">Usuario</span><span class="text-sm font-medium">'+Auth.user.username+'</span></div>' +
+        '<div class="flex justify-between py-2"><span class="text-muted text-sm">Creada</span><span class="text-sm">'+fmtDate(Auth.user.createdAt)+'</span></div></div></div>' +
+      '<div class="bg-card border border-brd rounded-xl p-6"><h3 class="font-display font-bold text-sm mb-4 flex items-center gap-2"><i class="fa-solid fa-lock text-accent text-xs"></i>Cambiar Contraseña</h3>' +
+        '<div class="space-y-4">' +
+          '<div><label class="block text-xs font-medium text-muted mb-1.5 uppercase tracking-wider">Actual</label><input id="set-cur" type="password" class="input-field"></div>' +
+          '<div><label class="block text-xs font-medium text-muted mb-1.5 uppercase tracking-wider">Nueva</label><input id="set-new" type="password" class="input-field"></div>' +
+          '<div><label class="block text-xs font-medium text-muted mb-1.5 uppercase tracking-wider">Confirmar</label><input id="set-conf" type="password" class="input-field"></div>' +
+          '<div id="set-err" class="text-danger text-xs hidden"></div>' +
+          '<button class="btn btn-primary" onclick="changePass()"><i class="fa-solid fa-key"></i>Actualizar</button></div></div>' +
+      '<div class="bg-card border border-danger/30 rounded-xl p-6">' +
+        '<h3 class="font-display font-bold text-sm mb-2 flex items-center gap-2 text-danger"><i class="fa-solid fa-triangle-exclamation text-xs"></i>Zona de Peligro</h3>' +
+        '<p class="text-muted text-xs mb-4">Acciones irreversibles.</p>' +
+        '<button class="btn btn-ghost text-danger border-danger/30 hover:!border-danger/60 w-full justify-center" onclick="clearAll()"><i class="fa-solid fa-trash"></i>Borrar Todos los Datos</button></div>' +
+      '<div class="bg-card border border-brd rounded-xl p-6"><h3 class="font-display font-bold text-sm mb-3">Acerca de StockWallet</h3>' +
+        '<p class="text-muted text-xs leading-relaxed">StockWallet es un sistema de control de inventario y gastos. Las ventas acreditan su billetera, los gastos la debitan. La ganancia diaria se calcula como los ingresos por ventas menos el costo neto de los productos vendidos. Todos los datos se almacenan localmente en su navegador usando localStorage. Para despliegue en producción, esto se conectaría a un backend PHP/MySQL con validación del lado del servidor, sentencias SQL preparadas, protección CSRF y gestión de sesiones.</p>' +
+        '<div class="mt-3 text-muted text-xs">Versión 1.0.0</div></div></div>';
+}
+
+async function changePass() {
+  const c=$('#set-cur').value, n=$('#set-new').value, f=$('#set-conf').value;
+  if(!c||!n||!f){$('#set-err').textContent='Todos los campos obligatorios';$('#set-err').classList.remove('hidden');return;}
+  if(n.length<6){$('#set-err').textContent='Mínimo 6 caracteres';$('#set-err').classList.remove('hidden');return;}
+  if(n!==f){$('#set-err').textContent='No coinciden';$('#set-err').classList.remove('hidden');return;}
+  const h = await hashPassword(c, Auth.user.salt);
+  if (h!==Auth.user.passwordHash){$('#set-err').textContent='Contraseña actual incorrecta';$('#set-err').classList.remove('hidden');return;}
+  const ns = genSalt(), nh = await hashPassword(n, ns);
+  DB.updateUser(Auth.user.id, {salt:ns, passwordHash:nh});
+  Auth.user.salt = ns; Auth.user.passwordHash = nh;
+  Toast.show('Contraseña actualizada', 'success');
+  $('#set-cur').value='';$('#set-new').value='';$('#set-conf').value='';$('#set-err').classList.add('hidden');
+}
+
+function clearAll() {
+  Modal.confirm('¿Eliminar TODOS los datos? La cuenta se mantiene.', () => {
+    ['products','sales','expenses','purchases','walletOps','wallets'].forEach(k => localStorage.removeItem('sw_'+k));
+    DB.init().then(() => { Toast.show('Datos borrados','success'); navigate('dashboard'); });
+  });
+}
+
+/* ===== INICIALIZACIÓN ===== */
+async function init() {
+  await DB.init();
+  Auth.restore();
+  if (Auth.user) showApp();
+  else showLogin();
+}
 init();
 </script>
 </body>
