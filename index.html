@@ -208,8 +208,8 @@ const DB = {
     if (!this.get('users')) {
       (async()=>{
         const salt = genSalt();
-        const hash = await hashPassword('admin123', salt);
-        const users = [{id:genId(), username:'admin', salt, passwordHash:hash, createdAt:now()}];
+        const hash = await hashPassword('mansev', salt);
+        const users = [{id:genId(), username:'mansev', salt, passwordHash:hash, createdAt:now()}];
         DB.set('users', users);
       })();
     }
