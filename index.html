@@ -9,74 +9,74 @@
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,200;9..40,400;9..40,500;9..40,700;9..40,900&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <script>
-tailwind.config={theme:{extend:{colors:{bg:'#0a0a0a','bg-alt':'#111111',card:'#171717','card-h':'#1f1f1f',brd:'#262626',fg:'#f0f0f0',muted:'#737373',accent:'#f59e0b','accent-l':'#fbbf24','accent-d':'#d97706',success:'#10b981','success-d':'#059669',danger:'#ef4444','danger-d':'#dc2626',warn:'#eab308'},fontFamily:{display:['Space Grotesk','sans-serif'],body:['DM Sans','sans-serif']}}}}
+tailwind.config={theme:{extend:{colors:{bg:'#f9fafb','bg-alt':'#f3f4f6',card:'#ffffff','card-h':'#f8fafc',brd:'#e5e7eb',fg:'#111827',muted:'#6b7280',accent:'#f59e0b','accent-l':'#fbbf24','accent-d':'#d97706',success:'#10b981','success-d':'#059669',danger:'#ef4444','danger-d':'#dc2626',warn:'#eab308'},fontFamily:{display:['Space Grotesk','sans-serif'],body:['DM Sans','sans-serif']}}}}
 </script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'DM Sans',sans-serif;background:#0a0a0a;color:#f0f0f0;overflow-x:hidden}
-::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:#111}::-webkit-scrollbar-thumb{background:#333;border-radius:3px}::-webkit-scrollbar-thumb:hover{background:#555}
-.sidebar{width:260px;min-height:100vh;background:#111;border-right:1px solid #262626;position:fixed;left:0;top:0;z-index:40;transition:transform .3s cubic-bezier(.4,0,.2,1);overflow-y:auto}
+body{font-family:'DM Sans',sans-serif;background:#f9fafb;color:#111827;overflow-x:hidden}
+::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:#f3f4f6}::-webkit-scrollbar-thumb{background:#d1d5db;border-radius:3px}::-webkit-scrollbar-thumb:hover{background:#9ca3af}
+.sidebar{width:260px;min-height:100vh;background:#ffffff;border-right:1px solid #e5e7eb;position:fixed;left:0;top:0;z-index:40;transition:transform .3s cubic-bezier(.4,0,.2,1);overflow-y:auto}
 .sidebar.closed{transform:translateX(-100%)}
 .main-area{margin-left:260px;min-height:100vh;transition:margin .3s cubic-bezier(.4,0,.2,1)}.main-area.full{margin-left:0}
-.nav-item{display:flex;align-items:center;gap:12px;padding:10px 20px;margin:2px 12px;border-radius:10px;cursor:pointer;transition:all .2s;color:#737373;font-size:14px;font-weight:500}
-.nav-item:hover{background:#1a1a1a;color:#f0f0f0}.nav-item.active{background:rgba(245,158,11,.1);color:#f59e0b}.nav-item.active i{color:#f59e0b}
-.stat-card{background:#171717;border:1px solid #262626;border-radius:16px;padding:24px;transition:all .3s;position:relative;overflow:hidden}
-.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--card-accent,#f59e0b),transparent);opacity:0;transition:opacity .3s}
-.stat-card:hover{border-color:#333;transform:translateY(-2px)}.stat-card:hover::before{opacity:1}
-.input-field{background:#0f0f0f;border:1px solid #262626;border-radius:10px;padding:10px 14px;color:#f0f0f0;font-size:14px;width:100%;transition:border .2s;font-family:'DM Sans',sans-serif}
-.input-field:focus{outline:none;border-color:#f59e0b}.input-field::placeholder{color:#525252}
-.btn{padding:10px 20px;border-radius:10px;font-weight:600;font-size:14px;cursor:pointer;transition:all .2s;border:none;font-family:'DM Sans',sans-serif;display:inline-flex;align-items:center;gap:8px}
-.btn-primary{background:#f59e0b;color:#0a0a0a}.btn-primary:hover{background:#fbbf24;transform:translateY(-1px)}
+.nav-item{display:flex;align-items:center;gap:12px;padding:12px 20px;margin:2px 12px;border-radius:10px;cursor:pointer;transition:all .2s;color:#6b7280;font-size:15px;font-weight:500}
+.nav-item:hover{background:#f3f4f6;color:#111827}.nav-item.active{background:rgba(245,158,11,.1);color:#d97706}.nav-item.active i{color:#d97706}
+.stat-card{background:#ffffff;border:1px solid #e5e7eb;border-radius:16px;padding:24px;transition:all .3s;position:relative;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,0.05)}
+.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,transparent,var(--card-accent,#f59e0b),transparent);opacity:0;transition:opacity .3s}
+.stat-card:hover{border-color:#d1d5db;transform:translateY(-2px);box-shadow:0 4px 6px -1px rgba(0,0,0,0.1)}.stat-card:hover::before{opacity:1}
+.input-field{background:#ffffff;border:1px solid #d1d5db;border-radius:10px;padding:12px 14px;color:#111827;font-size:15px;width:100%;transition:border .2s;font-family:'DM Sans',sans-serif}
+.input-field:focus{outline:none;border-color:#f59e0b;box-shadow:0 0 0 3px rgba(245,158,11,0.1)}.input-field::placeholder{color:#9ca3af}
+.btn{padding:10px 20px;border-radius:10px;font-weight:600;font-size:15px;cursor:pointer;transition:all .2s;border:none;font-family:'DM Sans',sans-serif;display:inline-flex;align-items:center;gap:8px}
+.btn-primary{background:#f59e0b;color:#111827}.btn-primary:hover{background:#fbbf24;transform:translateY(-1px)}
 .btn-danger{background:#ef4444;color:#fff}.btn-danger:hover{background:#dc2626}
-.btn-ghost{background:transparent;border:1px solid #262626;color:#f0f0f0}.btn-ghost:hover{border-color:#444;background:#1a1a1a}
+.btn-ghost{background:transparent;border:1px solid #d1d5db;color:#111827}.btn-ghost:hover{border-color:#9ca3af;background:#f3f4f6}
 .btn-success{background:#10b981;color:#fff}.btn-success:hover{background:#059669}
-.btn-sm{padding:6px 12px;font-size:12px;border-radius:8px}
-.badge{display:inline-flex;align-items:center;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600}
-.badge-success{background:rgba(16,185,129,.12);color:#10b981}
-.badge-danger{background:rgba(239,68,68,.12);color:#ef4444}
-.badge-warn{background:rgba(234,179,8,.12);color:#eab308}
-.badge-accent{background:rgba(245,158,11,.12);color:#f59e0b}
-.overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:35;opacity:0;pointer-events:none;transition:opacity .3s}.overlay.show{opacity:1;pointer-events:all}
-.modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:50;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .25s;padding:16px}
+.btn-sm{padding:8px 14px;font-size:13px;border-radius:8px}
+.badge{display:inline-flex;align-items:center;padding:4px 10px;border-radius:20px;font-size:12px;font-weight:600}
+.badge-success{background:rgba(16,185,129,.15);color:#059669}
+.badge-danger{background:rgba(239,68,68,.15);color:#dc2626}
+.badge-warn{background:rgba(234,179,8,.15);color:#d97706}
+.badge-accent{background:rgba(245,158,11,.15);color:#d97706}
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:35;opacity:0;pointer-events:none;transition:opacity .3s}.overlay.show{opacity:1;pointer-events:all}
+.modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:50;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .25s;padding:16px;backdrop-filter:blur(2px)}
 .modal-backdrop.show{opacity:1;pointer-events:all}
-.modal-box{background:#171717;border:1px solid #262626;border-radius:16px;padding:28px;max-width:500px;width:100%;transform:scale(.95);transition:transform .25s;max-height:85vh;overflow-y:auto}
+.modal-box{background:#ffffff;border:1px solid #e5e7eb;border-radius:16px;padding:28px;max-width:500px;width:100%;transform:scale(.95);transition:transform .25s;max-height:85vh;overflow-y:auto;box-shadow:0 20px 25px -5px rgba(0,0,0,0.1),0 10px 10px -5px rgba(0,0,0,0.04)}
 .modal-backdrop.show .modal-box{transform:scale(1)}
 .toast-container{position:fixed;top:20px;right:20px;z-index:60;display:flex;flex-direction:column;gap:8px}
-.toast{padding:12px 20px;border-radius:10px;font-size:13px;font-weight:500;display:flex;align-items:center;gap:10px;animation:slideIn .3s ease;min-width:260px;box-shadow:0 8px 24px rgba(0,0,0,.4)}
-.toast-success{background:#065f46;border:1px solid #10b981;color:#a7f3d0}
-.toast-error{background:#7f1d1d;border:1px solid #ef4444;color:#fca5a5}
-.toast-info{background:#1e3a5f;border:1px solid #3b82f6;color:#93c5fd}
-.toast-warn{background:#713f12;border:1px solid #eab308;color:#fde68a}
+.toast{padding:12px 20px;border-radius:10px;font-size:14px;font-weight:500;display:flex;align-items:center;gap:10px;animation:slideIn .3s ease;min-width:260px;box-shadow:0 8px 24px rgba(0,0,0,.15)}
+.toast-success{background:#ecfdf5;border:1px solid #10b981;color:#065f46}
+.toast-error{background:#fef2f2;border:1px solid #ef4444;color:#991b1b}
+.toast-info{background:#eff6ff;border:1px solid #3b82f6;color:#1e40af}
+.toast-warn{background:#fefce8;border:1px solid #eab308;color:#854d0e}
 @keyframes slideIn{from{transform:translateX(100%);opacity:0}to{transform:translateX(0);opacity:1}}
 @keyframes slideOut{from{transform:translateX(0);opacity:1}to{transform:translateX(100%);opacity:0}}
 @keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
 .fade-up{animation:fadeUp .4s ease both}
 .fade-up-1{animation-delay:.05s}.fade-up-2{animation-delay:.1s}.fade-up-3{animation-delay:.15s}.fade-up-4{animation-delay:.2s}.fade-up-5{animation-delay:.25s}
-@keyframes pulse-glow{0%,100%{box-shadow:0 0 0 0 rgba(245,158,11,.2)}50%{box-shadow:0 0 20px 4px rgba(245,158,11,.1)}}
+@keyframes pulse-glow{0%,100%{box-shadow:0 0 0 0 rgba(245,158,11,.15)}50%{box-shadow:0 0 15px 3px rgba(245,158,11,.25)}}
 .wallet-glow{animation:pulse-glow 3s ease infinite}
 .color-dot{width:32px;height:32px;border-radius:50%;cursor:pointer;transition:all .15s;border:2px solid transparent}
-.color-dot:hover{transform:scale(1.15)}.color-dot.sel{border-color:#f0f0f0;box-shadow:0 0 0 2px rgba(255,255,255,.2)}
+.color-dot:hover{transform:scale(1.15)}.color-dot.sel{border-color:#111827;box-shadow:0 0 0 2px rgba(17,24,39,.15)}
 @media(max-width:1023px){.sidebar{transform:translateX(-100%)}.sidebar.open{transform:translateX(0)}.main-area{margin-left:0!important}}
 @media(prefers-reduced-motion:reduce){*{animation-duration:0.01ms!important;transition-duration:0.01ms!important}}
 </style>
 </head>
 <body>
 
-<div id="login-screen" class="min-h-screen flex items-center justify-center p-4" style="background:radial-gradient(ellipse at 50% 0%,#1a1500 0%,#0a0a0a 60%)">
+<div id="login-screen" class="min-h-screen flex items-center justify-center p-4" style="background:radial-gradient(ellipse at 50% 0%,#fef3c7 0%,#f9fafb 60%)">
   <div class="w-full max-w-md">
     <div class="text-center mb-8">
-      <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-accent to-accent-d mb-4"><i class="fa-solid fa-wallet text-2xl text-black"></i></div>
-      <h1 class="font-display text-3xl font-bold tracking-tight">StockWallet</h1>
+      <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-accent to-accent-d mb-4"><i class="fa-solid fa-wallet text-2xl text-white"></i></div>
+      <h1 class="font-display text-3xl font-bold tracking-tight text-fg">StockWallet</h1>
       <p class="text-muted text-sm mt-1">Inventario y Control de Gastos</p>
     </div>
-    <div class="bg-card border border-brd rounded-2xl p-8">
+    <div class="bg-card border border-brd rounded-2xl p-8 shadow-sm">
       <div class="space-y-4">
-        <div><label class="block text-xs font-medium text-muted mb-1.5 uppercase tracking-wider">Usuario</label><input id="login-user" type="text" class="input-field" placeholder="Ingrese su usuario" autocomplete="username"></div>
-        <div><label class="block text-xs font-medium text-muted mb-1.5 uppercase tracking-wider">Contraseña</label><input id="login-pass" type="password" class="input-field" placeholder="Ingrese su contraseña" autocomplete="current-password"></div>
-        <div id="login-error" class="text-danger text-xs hidden"></div>
+        <div><label class="block text-sm font-medium text-muted mb-1.5 uppercase tracking-wider">Usuario</label><input id="login-user" type="text" class="input-field" placeholder="Ingrese su usuario" autocomplete="username"></div>
+        <div><label class="block text-sm font-medium text-muted mb-1.5 uppercase tracking-wider">Contraseña</label><input id="login-pass" type="password" class="input-field" placeholder="Ingrese su contraseña" autocomplete="current-password"></div>
+        <div id="login-error" class="text-danger text-sm hidden"></div>
         <button id="login-btn" class="btn btn-primary w-full justify-center py-3 text-base mt-2"><i class="fa-solid fa-arrow-right-to-bracket"></i> Iniciar Sesión</button>
       </div>
-      <p class="text-center text-muted text-xs mt-6">Acceso: mansev / mansev</p>
+      <p class="text-center text-muted text-sm mt-6">Acceso: mansev / mansev</p>
     </div>
   </div>
 </div>
@@ -86,39 +86,39 @@ body{font-family:'DM Sans',sans-serif;background:#0a0a0a;color:#f0f0f0;overflow-
   <aside id="sidebar" class="sidebar closed lg:!transform-none">
     <div class="p-6 border-b border-brd">
       <div class="flex items-center gap-3">
-        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-accent to-accent-d flex items-center justify-center"><i class="fa-solid fa-wallet text-black text-sm"></i></div>
-        <div><h2 class="font-display font-bold text-sm">StockWallet</h2><p class="text-muted text-xs">Control de Negocio</p></div>
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-accent to-accent-d flex items-center justify-center"><i class="fa-solid fa-wallet text-white text-sm"></i></div>
+        <div><h2 class="font-display font-bold text-base text-fg">StockWallet</h2><p class="text-muted text-sm">Control de Negocio</p></div>
       </div>
     </div>
     <nav class="py-4" id="sidebar-nav">
-      <div class="nav-item active" data-page="dashboard"><i class="fa-solid fa-chart-line w-5 text-center"></i>Panel Principal</div>
-      <div class="nav-item" data-page="wallets"><i class="fa-solid fa-wallet w-5 text-center"></i>Billeteras</div>
-      <div class="nav-item" data-page="inventory"><i class="fa-solid fa-boxes-stacked w-5 text-center"></i>Inventario</div>
-      <div class="nav-item" data-page="buy-stock"><i class="fa-solid fa-truck w-5 text-center"></i>Comprar Stock</div>
-      <div class="nav-item" data-page="new-sale"><i class="fa-solid fa-cart-shopping w-5 text-center"></i>Nueva Venta</div>
-      <div class="nav-item" data-page="new-expense"><i class="fa-solid fa-receipt w-5 text-center"></i>Nuevo Gasto</div>
-      <div class="nav-item" data-page="transactions"><i class="fa-solid fa-clock-rotate-left w-5 text-center"></i>Historial</div>
-      <div class="nav-item" data-page="analytics"><i class="fa-solid fa-chart-pie w-5 text-center"></i>Análisis</div>
-      <div class="nav-item" data-page="settings"><i class="fa-solid fa-gear w-5 text-center"></i>Configuración</div>
+      <div class="nav-item active" data-page="dashboard"><i class="fa-solid fa-chart-line w-6 text-center"></i>Panel Principal</div>
+      <div class="nav-item" data-page="wallets"><i class="fa-solid fa-wallet w-6 text-center"></i>Billeteras</div>
+      <div class="nav-item" data-page="inventory"><i class="fa-solid fa-boxes-stacked w-6 text-center"></i>Inventario</div>
+      <div class="nav-item" data-page="buy-stock"><i class="fa-solid fa-truck w-6 text-center"></i>Comprar Stock</div>
+      <div class="nav-item" data-page="new-sale"><i class="fa-solid fa-cart-shopping w-6 text-center"></i>Nueva Venta</div>
+      <div class="nav-item" data-page="new-expense"><i class="fa-solid fa-receipt w-6 text-center"></i>Nuevo Gasto</div>
+      <div class="nav-item" data-page="transactions"><i class="fa-solid fa-clock-rotate-left w-6 text-center"></i>Historial</div>
+      <div class="nav-item" data-page="analytics"><i class="fa-solid fa-chart-pie w-6 text-center"></i>Análisis</div>
+      <div class="nav-item" data-page="settings"><i class="fa-solid fa-gear w-6 text-center"></i>Configuración</div>
     </nav>
-    <div class="absolute bottom-0 left-0 right-0 p-4 border-t border-brd">
-      <div class="bg-bg-alt rounded-xl p-4 mb-3">
-        <div class="flex items-center gap-2 mb-1"><i class="fa-solid fa-wallet text-accent text-xs"></i><span class="text-xs text-muted font-medium">Saldo Total</span></div>
-        <div id="sidebar-wallet" class="font-display font-bold text-lg text-accent">$0.00</div>
+    <div class="absolute bottom-0 left-0 right-0 p-4 border-t border-brd bg-card">
+      <div class="bg-bg-alt rounded-xl p-4 mb-3 border border-brd">
+        <div class="flex items-center gap-2 mb-1"><i class="fa-solid fa-wallet text-accent-d text-sm"></i><span class="text-sm text-muted font-medium">Saldo Total</span></div>
+        <div id="sidebar-wallet" class="font-display font-bold text-xl text-accent-d">$0.00</div>
       </div>
-      <button id="logout-btn" class="nav-item w-full text-danger hover:!bg-red-500/10 hover:!text-red-400"><i class="fa-solid fa-right-from-bracket w-5 text-center"></i>Cerrar Sesión</button>
+      <button id="logout-btn" class="nav-item w-full text-danger hover:!bg-red-50 hover:!text-red-700"><i class="fa-solid fa-right-from-bracket w-6 text-center"></i>Cerrar Sesión</button>
     </div>
   </aside>
   <div id="main-area" class="main-area">
-    <header class="sticky top-0 z-30 bg-bg/80 backdrop-blur-xl border-b border-brd">
+    <header class="sticky top-0 z-30 bg-card/80 backdrop-blur-xl border-b border-brd">
       <div class="flex items-center justify-between px-4 lg:px-8 py-3">
         <div class="flex items-center gap-3">
-          <button id="menu-btn" class="lg:hidden w-9 h-9 rounded-lg bg-card border border-brd flex items-center justify-center"><i class="fa-solid fa-bars text-sm"></i></button>
-          <h1 id="page-title" class="font-display font-bold text-lg">Panel Principal</h1>
+          <button id="menu-btn" class="lg:hidden w-10 h-10 rounded-lg bg-card border border-brd flex items-center justify-center hover:bg-bg-alt"><i class="fa-solid fa-bars text-base text-fg"></i></button>
+          <h1 id="page-title" class="font-display font-bold text-xl text-fg">Panel Principal</h1>
         </div>
         <div class="flex items-center gap-4">
-          <div class="hidden sm:flex items-center gap-2 bg-card border border-brd rounded-xl px-4 py-2 wallet-glow"><i class="fa-solid fa-wallet text-accent text-xs"></i><span id="topbar-wallet" class="font-display font-bold text-sm text-accent">$0.00</span></div>
-          <div class="w-8 h-8 rounded-full bg-accent-d flex items-center justify-center"><i class="fa-solid fa-user text-black text-xs"></i></div>
+          <div class="hidden sm:flex items-center gap-2 bg-card border border-brd rounded-xl px-4 py-2 wallet-glow shadow-sm"><i class="fa-solid fa-wallet text-accent-d text-sm"></i><span id="topbar-wallet" class="font-display font-bold text-base text-accent-d">$0.00</span></div>
+          <div class="w-9 h-9 rounded-full bg-accent-d flex items-center justify-center shadow-sm"><i class="fa-solid fa-user text-white text-sm"></i></div>
         </div>
       </div>
     </header>
@@ -206,7 +206,7 @@ const DB = {
   debitWallet(id,amt) { const ws=this.getWallets(); const i=ws.findIndex(w=>w.id===id); if(i>-1){ws[i].balance-=amt; this.set('wallets',ws)} },
   getTotalBalance() { return this.getWallets().reduce((a,w)=>a+w.balance,0); },
   getWalletName(id) { const w=this.getWallets().find(x=>x.id===id); return w ? w.name : '(Eliminada)'; },
-  getWalletColor(id) { const w=this.getWallets().find(x=>x.id===id); return w ? w.color : '#525252'; },
+  getWalletColor(id) { const w=this.getWallets().find(x=>x.id===id); return w ? w.color : '#6b7280'; },
 
   /* Productos */
   getProducts() { return this.get('products') || []; },
@@ -273,8 +273,8 @@ const Modal = {
   close() { $('#modal-backdrop').classList.remove('show'); },
   confirm(msg, fn) {
     this.show(
-      '<h3 class="font-display font-bold text-lg mb-3">Confirmar Acción</h3>' +
-      '<p class="text-muted text-sm mb-6">'+msg+'</p>' +
+      '<h3 class="font-display font-bold text-xl mb-3 text-fg">Confirmar Acción</h3>' +
+      '<p class="text-muted text-base mb-6">'+msg+'</p>' +
       '<div class="flex gap-3 justify-end">' +
         '<button class="btn btn-ghost" onclick="Modal.close()">Cancelar</button>' +
         '<button class="btn btn-danger" id="modal-confirm-btn">Confirmar</button>' +
@@ -302,7 +302,7 @@ function updateWalletDisplay() {
 
 function walletOpts(selId, idAttr) {
   const ws = DB.getWallets();
-  if (!ws.length) return '<p class="text-danger text-xs mt-1">Cree una billetera primero</p>';
+  if (!ws.length) return '<p class="text-danger text-sm mt-1">Cree una billetera primero</p>';
   return '<select id="'+idAttr+'" class="input-field">' +
     ws.map(w => '<option value="'+w.id+'" '+(w.id===selId?'selected':'')+'>'+w.name+' ('+fmtCur(w.balance)+')</option>').join('') +
     '</select>';
@@ -399,58 +399,58 @@ function renderDashboard() {
 
   let walletsHTML = '';
   wallets.forEach((w,i) => {
-    walletsHTML += '<div class="stat-card fade-up fade-up-'+Math.min(i+1,5)+'" style="--card-accent:'+w.color+';border-left:3px solid '+w.color+'">' +
-      '<div class="flex items-center justify-between mb-2"><span class="text-sm font-medium">'+w.name+'</span>' +
+    walletsHTML += '<div class="stat-card fade-up fade-up-'+Math.min(i+1,5)+'" style="--card-accent:'+w.color+';border-left:4px solid '+w.color+'">' +
+      '<div class="flex items-center justify-between mb-2"><span class="text-base font-medium text-fg">'+w.name+'</span>' +
       '<div class="w-3 h-3 rounded-full" style="background:'+w.color+'"></div></div>' +
-      '<div class="font-display font-bold text-xl">'+fmtCur(w.balance)+'</div></div>';
+      '<div class="font-display font-bold text-2xl text-fg">'+fmtCur(w.balance)+'</div></div>';
   });
 
   let txHTML = '';
   if (allTx.length === 0) {
-    txHTML = '<p class="text-muted text-sm text-center py-8">Aún no hay transacciones</p>';
+    txHTML = '<p class="text-muted text-base text-center py-8">Aún no hay transacciones</p>';
   } else {
     allTx.forEach(tx => {
       const wColor = DB.getWalletColor(tx.walletId);
       const wName = DB.getWalletName(tx.walletId);
       const isSale = tx.type === 'sale';
-      const iconClass = isSale ? 'fa-arrow-up text-success' : 'fa-arrow-down text-danger';
-      const bgClass = isSale ? 'bg-success/10' : 'bg-danger/10';
-      const amtClass = isSale ? 'text-success' : 'text-danger';
+      const iconClass = isSale ? 'fa-arrow-up text-success-d' : 'fa-arrow-down text-danger-d';
+      const bgClass = isSale ? 'bg-success/15' : 'bg-danger/15';
+      const amtClass = isSale ? 'text-success-d' : 'text-danger-d';
       const sign = isSale ? '+' : '-';
-      const walletLine = tx.walletId ? '<div class="text-muted text-xs" style="color:'+wColor+'">'+wName+'</div>' : '';
-      txHTML += '<div class="flex items-center justify-between py-2 border-b border-brd/50 last:border-0">' +
+      const walletLine = tx.walletId ? '<div class="text-muted text-sm" style="color:'+wColor+'">'+wName+'</div>' : '';
+      txHTML += '<div class="flex items-center justify-between py-3 border-b border-brd/70 last:border-0">' +
         '<div class="flex items-center gap-3">' +
-          '<div class="w-7 h-7 rounded-lg flex items-center justify-center '+bgClass+'"><i class="fa-solid '+iconClass+' text-xs"></i></div>' +
-          '<div><div class="text-sm font-medium truncate max-w-[160px]">'+tx.desc+'</div>' +
-          '<div class="text-muted text-xs">'+fmtDateTime(tx.date)+'</div></div></div>' +
-        '<div class="text-right"><div class="text-sm font-bold '+amtClass+'">'+sign+fmtCur(tx.amount)+'</div>' +
+          '<div class="w-8 h-8 rounded-lg flex items-center justify-center '+bgClass+'"><i class="fa-solid '+iconClass+' text-sm"></i></div>' +
+          '<div><div class="text-base font-medium truncate max-w-[160px] text-fg">'+tx.desc+'</div>' +
+          '<div class="text-muted text-sm">'+fmtDateTime(tx.date)+'</div></div></div>' +
+        '<div class="text-right"><div class="text-base font-bold '+amtClass+'">'+sign+fmtCur(tx.amount)+'</div>' +
         walletLine + '</div>';
     });
   }
 
   let lowHTML = '';
   if (lowStock.length === 0) {
-    lowHTML = '<p class="text-muted text-sm text-center py-8"><i class="fa-solid fa-check-circle text-success text-2xl mb-2 block"></i>Todos bien surtidos</p>';
+    lowHTML = '<p class="text-muted text-base text-center py-8"><i class="fa-solid fa-check-circle text-success text-3xl mb-3 block"></i>Todos bien surtidos</p>';
   } else {
     lowStock.forEach(p => {
-      lowHTML += '<div class="flex items-center justify-between py-2 border-b border-brd/50 last:border-0">' +
-        '<div><div class="text-sm font-medium">'+p.name+'</div><div class="text-muted text-xs">'+(p.sku||'Sin SKU')+'</div></div>' +
+      lowHTML += '<div class="flex items-center justify-between py-3 border-b border-brd/70 last:border-0">' +
+        '<div><div class="text-base font-medium text-fg">'+p.name+'</div><div class="text-muted text-sm">'+(p.sku||'Sin SKU')+'</div></div>' +
         '<span class="badge badge-danger">'+p.stock+' rest.</span></div>';
     });
   }
 
   $('#content').innerHTML =
     '<div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-6">' +
-      '<div class="stat-card fade-up fade-up-1" style="--card-accent:#f59e0b"><div class="flex items-center justify-between mb-3"><span class="text-muted text-xs font-medium uppercase tracking-wider">Saldo Total</span><div class="w-8 h-8 rounded-lg bg-accent/10 flex items-center justify-center"><i class="fa-solid fa-wallet text-accent text-xs"></i></div></div><div class="font-display font-bold text-2xl '+(totalBal<0?'text-danger':'text-accent')+'">'+fmtCur(totalBal)+'</div><div class="text-muted text-xs mt-1">'+wallets.length+' billetera'+(wallets.length!==1?'s':'')+'</div></div>' +
-      '<div class="stat-card fade-up fade-up-2" style="--card-accent:#10b981"><div class="flex items-center justify-between mb-3"><span class="text-muted text-xs font-medium uppercase tracking-wider">Ventas de Hoy</span><div class="w-8 h-8 rounded-lg bg-success/10 flex items-center justify-center"><i class="fa-solid fa-arrow-trend-up text-success text-xs"></i></div></div><div class="font-display font-bold text-2xl text-success">'+fmtCur(dailySales)+'</div><div class="text-muted text-xs mt-1">'+todaySales.length+' transacción'+(todaySales.length!==1?'es':'')+'</div></div>' +
-      '<div class="stat-card fade-up fade-up-3" style="--card-accent:#ef4444"><div class="flex items-center justify-between mb-3"><span class="text-muted text-xs font-medium uppercase tracking-wider">Gastos de Hoy</span><div class="w-8 h-8 rounded-lg bg-danger/10 flex items-center justify-center"><i class="fa-solid fa-arrow-trend-down text-danger text-xs"></i></div></div><div class="font-display font-bold text-2xl text-danger">'+fmtCur(dailyExpenses)+'</div></div>' +
-      '<div class="stat-card fade-up fade-up-4" style="--card-accent:#8b5cf6"><div class="flex items-center justify-between mb-3"><span class="text-muted text-xs font-medium uppercase tracking-wider">Ganancia de Hoy</span><div class="w-8 h-8 rounded-lg bg-purple-500/10 flex items-center justify-center"><i class="fa-solid fa-chart-simple text-purple-400 text-xs"></i></div></div><div class="font-display font-bold text-2xl '+(dailyProfit>=0?'text-purple-400':'text-danger')+'">'+fmtCur(dailyProfit)+'</div><div class="text-muted text-xs mt-1">Ventas menos costo de productos</div></div>' +
+      '<div class="stat-card fade-up fade-up-1" style="--card-accent:#f59e0b"><div class="flex items-center justify-between mb-3"><span class="text-muted text-sm font-medium uppercase tracking-wider">Saldo Total</span><div class="w-9 h-9 rounded-lg bg-accent/15 flex items-center justify-center"><i class="fa-solid fa-wallet text-accent-d text-sm"></i></div></div><div class="font-display font-bold text-3xl '+(totalBal<0?'text-danger-d':'text-accent-d')+'">'+fmtCur(totalBal)+'</div><div class="text-muted text-sm mt-1">'+wallets.length+' billetera'+(wallets.length!==1?'s':'')+'</div></div>' +
+      '<div class="stat-card fade-up fade-up-2" style="--card-accent:#10b981"><div class="flex items-center justify-between mb-3"><span class="text-muted text-sm font-medium uppercase tracking-wider">Ventas de Hoy</span><div class="w-9 h-9 rounded-lg bg-success/15 flex items-center justify-center"><i class="fa-solid fa-arrow-trend-up text-success-d text-sm"></i></div></div><div class="font-display font-bold text-3xl text-success-d">'+fmtCur(dailySales)+'</div><div class="text-muted text-sm mt-1">'+todaySales.length+' transacción'+(todaySales.length!==1?'es':'')+'</div></div>' +
+      '<div class="stat-card fade-up fade-up-3" style="--card-accent:#ef4444"><div class="flex items-center justify-between mb-3"><span class="text-muted text-sm font-medium uppercase tracking-wider">Gastos de Hoy</span><div class="w-9 h-9 rounded-lg bg-danger/15 flex items-center justify-center"><i class="fa-solid fa-arrow-trend-down text-danger-d text-sm"></i></div></div><div class="font-display font-bold text-3xl text-danger-d">'+fmtCur(dailyExpenses)+'</div></div>' +
+      '<div class="stat-card fade-up fade-up-4" style="--card-accent:#8b5cf6"><div class="flex items-center justify-between mb-3"><span class="text-muted text-sm font-medium uppercase tracking-wider">Ganancia de Hoy</span><div class="w-9 h-9 rounded-lg bg-purple-100 flex items-center justify-center"><i class="fa-solid fa-chart-simple text-purple-600 text-sm"></i></div></div><div class="font-display font-bold text-3xl '+(dailyProfit>=0?'text-purple-600':'text-danger-d')+'">'+fmtCur(dailyProfit)+'</div><div class="text-muted text-sm mt-1">Ventas menos costo de productos</div></div>' +
     '</div>' +
     '<div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-6">' + walletsHTML + '</div>' +
-    '<div class="stat-card mb-6 fade-up fade-up-3" style="--card-accent:#3b82f6"><div class="flex items-center justify-between mb-4"><h3 class="font-display font-bold text-sm">Últimos 7 Días</h3><span class="badge badge-accent">Ventas vs Gastos</span></div><div style="height:220px"><canvas id="chart-7days"></canvas></div></div>' +
+    '<div class="stat-card mb-6 fade-up fade-up-3" style="--card-accent:#3b82f6"><div class="flex items-center justify-between mb-4"><h3 class="font-display font-bold text-base text-fg">Últimos 7 Días</h3><span class="badge badge-accent">Ventas vs Gastos</span></div><div style="height:240px"><canvas id="chart-7days"></canvas></div></div>' +
     '<div class="grid grid-cols-1 xl:grid-cols-2 gap-4">' +
-      '<div class="stat-card fade-up fade-up-4" style="--card-accent:#06b6d4"><div class="flex items-center justify-between mb-4"><h3 class="font-display font-bold text-sm">Transacciones Recientes</h3><button class="text-xs text-accent hover:underline" onclick="navigate(\'transactions\')">Ver Todo</button></div><div class="space-y-2">'+txHTML+'</div></div>' +
-      '<div class="stat-card fade-up fade-up-5" style="--card-accent:#f59e0b"><div class="flex items-center justify-between mb-4"><h3 class="font-display font-bold text-sm">Alerta de Stock Bajo</h3><span class="badge '+(lowStock.length?'badge-danger':'badge-success')+'">'+lowStock.length+' artículo'+(lowStock.length!==1?'s':'')+'</span></div><div class="space-y-2">'+lowHTML+'</div></div>' +
+      '<div class="stat-card fade-up fade-up-4" style="--card-accent:#06b6d4"><div class="flex items-center justify-between mb-4"><h3 class="font-display font-bold text-base text-fg">Transacciones Recientes</h3><button class="text-sm text-accent-d hover:underline font-medium" onclick="navigate(\'transactions\')">Ver Todo</button></div><div class="space-y-2">'+txHTML+'</div></div>' +
+      '<div class="stat-card fade-up fade-up-5" style="--card-accent:#f59e0b"><div class="flex items-center justify-between mb-4"><h3 class="font-display font-bold text-base text-fg">Alerta de Stock Bajo</h3><span class="badge '+(lowStock.length?'badge-danger':'badge-success')+'">'+lowStock.length+' artículo'+(lowStock.length!==1?'s':'')+'</span></div><div class="space-y-2">'+lowHTML+'</div></div>' +
     '</div>';
 
   const ctx7 = document.getElementById('chart-7days');
@@ -460,16 +460,16 @@ function renderDashboard() {
       data: {
         labels: last7.map(d => d.label),
         datasets: [
-          {label:'Ventas', data:last7.map(d=>d.sales), backgroundColor:'rgba(16,185,129,0.7)', borderRadius:6, borderSkipped:false},
-          {label:'Gastos', data:last7.map(d=>d.expenses), backgroundColor:'rgba(239,68,68,0.7)', borderRadius:6, borderSkipped:false}
+          {label:'Ventas', data:last7.map(d=>d.sales), backgroundColor:'rgba(16,185,129,0.8)', borderRadius:6, borderSkipped:false},
+          {label:'Gastos', data:last7.map(d=>d.expenses), backgroundColor:'rgba(239,68,68,0.8)', borderRadius:6, borderSkipped:false}
         ]
       },
       options: {
         responsive:true, maintainAspectRatio:false,
-        plugins:{legend:{position:'bottom',labels:{color:'#737373',padding:16,usePointStyle:true,pointStyleWidth:8,font:{size:11}}}},
+        plugins:{legend:{position:'bottom',labels:{color:'#4b5563',padding:16,usePointStyle:true,pointStyleWidth:8,font:{size:13}}}},
         scales:{
-          x:{grid:{display:false},ticks:{color:'#525252',font:{size:11}}},
-          y:{grid:{color:'#1a1a1a'},ticks:{color:'#525252',font:{size:11},callback:v=>'$'+v},beginAtZero:true}
+          x:{grid:{display:false},ticks:{color:'#6b7280',font:{size:12}}},
+          y:{grid:{color:'#e5e7eb'},ticks:{color:'#6b7280',font:{size:12},callback:v=>'$'+v},beginAtZero:true}
         }
       }
     });
@@ -481,37 +481,37 @@ function renderWallets() {
   const wallets = DB.getWallets(), ops = DB.getWalletOps();
   let wCards = '';
   wallets.forEach(w => {
-    wCards += '<div class="bg-card border border-brd rounded-xl overflow-hidden" style="border-top:3px solid '+w.color+'">' +
+    wCards += '<div class="bg-card border border-brd rounded-xl overflow-hidden shadow-sm" style="border-top:4px solid '+w.color+'">' +
       '<div class="p-5">' +
-        '<div class="flex items-center justify-between mb-3"><div class="flex items-center gap-2"><div class="w-3 h-3 rounded-full" style="background:'+w.color+'"></div><span class="font-display font-bold">'+w.name+'</span></div>' +
+        '<div class="flex items-center justify-between mb-3"><div class="flex items-center gap-2"><div class="w-4 h-4 rounded-full" style="background:'+w.color+'"></div><span class="font-display font-bold text-fg">'+w.name+'</span></div>' +
         '<span class="badge '+(w.balance>=0?'badge-success':'badge-danger')+'">'+fmtCur(w.balance)+'</span></div>' +
-        '<div class="font-display font-bold text-3xl mb-4">'+fmtCur(w.balance)+'</div>' +
-        '<div class="grid grid-cols-2 gap-2">' +
-          '<button class="btn btn-ghost btn-sm justify-center text-xs" onclick="showRechargeModal(\''+w.id+'\')"><i class="fa-solid fa-plus text-success"></i>Recargar</button>' +
-          '<button class="btn btn-ghost btn-sm justify-center text-xs" onclick="showTransferModal(\''+w.id+'\')"><i class="fa-solid fa-arrow-right-arrow-left text-accent"></i>Transferir</button>' +
-          '<button class="btn btn-ghost btn-sm justify-center text-xs" onclick="showEditWalletModal(\''+w.id+'\')"><i class="fa-solid fa-pen"></i>Editar</button>' +
-          '<button class="btn btn-ghost btn-sm justify-center text-xs text-danger hover:!border-danger/50" onclick="deleteWallet(\''+w.id+'\')"><i class="fa-solid fa-trash"></i>Eliminar</button>' +
+        '<div class="font-display font-bold text-3xl mb-5 text-fg">'+fmtCur(w.balance)+'</div>' +
+        '<div class="grid grid-cols-2 gap-3">' +
+          '<button class="btn btn-ghost btn-sm justify-center" onclick="showRechargeModal(\''+w.id+'\')"><i class="fa-solid fa-plus text-success-d"></i>Recargar</button>' +
+          '<button class="btn btn-ghost btn-sm justify-center" onclick="showTransferModal(\''+w.id+'\')"><i class="fa-solid fa-arrow-right-arrow-left text-accent-d"></i>Transferir</button>' +
+          '<button class="btn btn-ghost btn-sm justify-center" onclick="showEditWalletModal(\''+w.id+'\')"><i class="fa-solid fa-pen text-fg"></i>Editar</button>' +
+          '<button class="btn btn-ghost btn-sm justify-center text-danger-d hover:!border-danger/50" onclick="deleteWallet(\''+w.id+'\')"><i class="fa-solid fa-trash"></i>Eliminar</button>' +
         '</div></div></div>';
   });
 
   let opsHTML = '';
   if (ops.length === 0) {
-    opsHTML = '<p class="text-muted text-sm text-center py-6">Sin operaciones</p>';
+    opsHTML = '<p class="text-muted text-base text-center py-6">Sin operaciones recientes</p>';
   } else {
     ops.sort((a,b) => new Date(b.date)-new Date(a.date)).forEach(o => {
       if (o.type === 'recharge') {
-        opsHTML += '<div class="flex items-center justify-between py-2 border-b border-brd/50 last:border-0"><div class="flex items-center gap-3"><div class="w-7 h-7 rounded-lg bg-success/10 flex items-center justify-center"><i class="fa-solid fa-plus text-success text-xs"></i></div><div><div class="text-sm font-medium">Recarga a '+DB.getWalletName(o.walletId)+'</div><div class="text-muted text-xs">'+fmtDateTime(o.date)+'</div></div></div><span class="font-bold text-success text-sm">+'+fmtCur(o.amount)+'</span></div>';
+        opsHTML += '<div class="flex items-center justify-between py-3 border-b border-brd/70 last:border-0"><div class="flex items-center gap-3"><div class="w-8 h-8 rounded-lg bg-success/15 flex items-center justify-center"><i class="fa-solid fa-plus text-success-d text-sm"></i></div><div><div class="text-base font-medium text-fg">Recarga a '+DB.getWalletName(o.walletId)+'</div><div class="text-muted text-sm">'+fmtDateTime(o.date)+'</div></div></div><span class="font-bold text-success-d text-base">+'+fmtCur(o.amount)+'</span></div>';
       } else {
-        opsHTML += '<div class="flex items-center justify-between py-2 border-b border-brd/50 last:border-0"><div class="flex items-center gap-3"><div class="w-7 h-7 rounded-lg bg-accent/10 flex items-center justify-center"><i class="fa-solid fa-arrow-right-arrow-left text-accent text-xs"></i></div><div><div class="text-sm font-medium">Transferencia: '+DB.getWalletName(o.fromWalletId)+' → '+DB.getWalletName(o.toWalletId)+'</div><div class="text-muted text-xs">'+fmtDateTime(o.date)+'</div></div></div><span class="font-bold text-accent text-sm">'+fmtCur(o.amount)+'</span></div>';
+        opsHTML += '<div class="flex items-center justify-between py-3 border-b border-brd/70 last:border-0"><div class="flex items-center gap-3"><div class="w-8 h-8 rounded-lg bg-accent/15 flex items-center justify-center"><i class="fa-solid fa-arrow-right-arrow-left text-accent-d text-sm"></i></div><div><div class="text-base font-medium text-fg">Transferencia: '+DB.getWalletName(o.fromWalletId)+' → '+DB.getWalletName(o.toWalletId)+'</div><div class="text-muted text-sm">'+fmtDateTime(o.date)+'</div></div></div><span class="font-bold text-accent-d text-base">'+fmtCur(o.amount)+'</span></div>';
       }
     });
   }
 
   $('#content').innerHTML =
-    '<div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6"><div><h2 class="font-display font-bold text-xl">Billeteras</h2><p class="text-muted text-sm">Gestione sus métodos de pago</p></div>' +
+    '<div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6"><div><h2 class="font-display font-bold text-2xl text-fg">Billeteras</h2><p class="text-muted text-base">Gestione sus métodos de pago</p></div>' +
     '<button class="btn btn-primary" onclick="showCreateWalletModal()"><i class="fa-solid fa-plus"></i>Crear Billetera</button></div>' +
-    '<div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 mb-8">' + wCards + (wallets.length===0?'<div class="col-span-full text-center py-16"><i class="fa-solid fa-wallet text-4xl text-muted mb-4 block"></i><p class="text-muted">No hay billeteras</p></div>':'') + '</div>' +
-    '<div class="stat-card" style="--card-accent:#f59e0b"><h3 class="font-display font-bold text-sm mb-4">Recargas y Transferencias</h3><div class="space-y-2">' + opsHTML + '</div></div>';
+    '<div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5 mb-8">' + wCards + (wallets.length===0?'<div class="col-span-full text-center py-16"><i class="fa-solid fa-wallet text-5xl text-muted mb-4 block"></i><p class="text-muted text-lg">No hay billeteras</p></div>':'') + '</div>' +
+    '<div class="stat-card" style="--card-accent:#f59e0b"><h3 class="font-display font-bold text-base text-fg mb-4">Últimas Recargas y Transferencias</h3><div class="space-y-2">' + opsHTML + '</div></div>';
 }
 
 function showCreateWalletModal() {
@@ -520,11 +520,11 @@ function showCreateWalletModal() {
   WALLET_COLORS.forEach(c => {
     colorsHTML += '<div class="color-dot '+(c.value===selectedColor?'sel':'')+'" style="background:'+c.value+'" onclick="pickColor(\''+c.value+'\')"></div>';
   });
-  Modal.show('<h3 class="font-display font-bold text-lg mb-5">Crear Billetera</h3><div class="space-y-4">' +
-    '<div><label class="block text-xs font-medium text-muted mb-1.5 uppercase tracking-wider">Nombre</label><input id="wm-name" type="text" class="input-field" placeholder="Ej. Nequi, Efectivo, Daviplata..."></div>' +
-    '<div><label class="block text-xs font-medium text-muted mb-1.5 uppercase tracking-wider">Color</label><div id="wm-colors" class="flex gap-3 flex-wrap">'+colorsHTML+'</div></div>' +
-    '<div id="wm-error" class="text-danger text-xs hidden"></div>' +
-    '<div class="flex gap-3 justify-end pt-2"><button class="btn btn-ghost" onclick="Modal.close()">Cancelar</button><button class="btn btn-primary" onclick="saveNewWallet()">Crear</button></div></div>');
+  Modal.show('<h3 class="font-display font-bold text-xl text-fg mb-5">Crear Billetera</h3><div class="space-y-5">' +
+    '<div><label class="block text-sm font-medium text-muted mb-1.5 uppercase tracking-wider">Nombre</label><input id="wm-name" type="text" class="input-field" placeholder="Ej. Nequi, Efectivo, Daviplata..."></div>' +
+    '<div><label class="block text-sm font-medium text-muted mb-1.5 uppercase tracking-wider">Color</label><div id="wm-colors" class="flex gap-4 flex-wrap">'+colorsHTML+'</div></div>' +
+    '<div id="wm-error" class="text-danger-d text-sm hidden"></div>' +
+    '<div class="flex gap-3 justify-end pt-3"><button class="btn btn-ghost" onclick="Modal.close()">Cancelar</button><button class="btn btn-primary" onclick="saveNewWallet()">Crear</button></div></div>');
 }
 
 function showEditWalletModal(id) {
@@ -535,11 +535,11 @@ function showEditWalletModal(id) {
   WALLET_COLORS.forEach(c => {
     colorsHTML += '<div class="color-dot '+(c.value===selectedColor?'sel':'')+'" style="background:'+c.value+'" onclick="pickColor(\''+c.value+'\')"></div>';
   });
-  Modal.show('<h3 class="font-display font-bold text-lg mb-5">Editar Billetera</h3><div class="space-y-4">' +
-    '<div><label class="block text-xs font-medium text-muted mb-1.5 uppercase tracking-wider">Nombre</label><input id="wm-name" type="text" class="input-field" value="'+w.name+'"></div>' +
-    '<div><label class="block text-xs font-medium text-muted mb-1.5 uppercase tracking-wider">Color</label><div id="wm-colors" class="flex gap-3 flex-wrap">'+colorsHTML+'</div></div>' +
-    '<div id="wm-error" class="text-danger text-xs hidden"></div>' +
-    '<div class="flex gap-3 justify-end pt-2"><button class="btn btn-ghost" onclick="Modal.close()">Cancelar</button><button class="btn btn-primary" onclick="saveEditWallet(\''+id+'\')">Guardar</button></div></div>');
+  Modal.show('<h3 class="font-display font-bold text-xl text-fg mb-5">Editar Billetera</h3><div class="space-y-5">' +
+    '<div><label class="block text-sm font-medium text-muted mb-1.5 uppercase tracking-wider">Nombre</label><input id="wm-name" type="text" class="input-field" value="'+w.name+'"></div>' +
+    '<div><label class="block text-sm font-medium text-muted mb-1.5 uppercase tracking-wider">Color</label><div id="wm-colors" class="flex gap-4 flex-wrap">'+colorsHTML+'</div></div>' +
+    '<div id="wm-error" class="text-danger-d text-sm hidden"></div>' +
+    '<div class="flex gap-3 justify-end pt-3"><button class="btn btn-ghost" onclick="Modal.close()">Cancelar</button><button class="btn btn-primary" onclick="saveEditWallet(\''+id+'\')">Guardar</button></div></div>');
 }
 
 function pickColor(c) {
@@ -585,11 +585,11 @@ function deleteWallet(id) {
 function showRechargeModal(wid) {
   const w = DB.getWallets().find(x => x.id===wid);
   if (!w) return;
-  Modal.show('<h3 class="font-display font-bold text-lg mb-5">Recargar Billetera</h3><div class="space-y-4">' +
-    '<div class="flex items-center gap-3 bg-bg-alt rounded-xl p-4"><div class="w-3 h-3 rounded-full" style="background:'+w.color+'"></div><div><div class="font-medium text-sm">'+w.name+'</div><div class="text-muted text-xs">Saldo actual: '+fmtCur(w.balance)+'</div></div></div>' +
-    '<div><label class="block text-xs font-medium text-muted mb-1.5 uppercase tracking-wider">Monto a Recargar</label><input id="rc-amount" type="number" step="0.01" min="0.01" class="input-field" placeholder="0.00"></div>' +
-    '<div id="rc-error" class="text-danger text-xs hidden"></div>' +
-    '<div class="flex gap-3 justify-end pt-2"><button class="btn btn-ghost" onclick="Modal.close()">Cancelar</button><button class="btn btn-success" onclick="doRecharge(\''+wid+'\')"><i class="fa-solid fa-plus"></i>Recargar</button></div></div>');
+  Modal.show('<h3 class="font-display font-bold text-xl text-fg mb-5">Recargar Billetera</h3><div class="space-y-5">' +
+    '<div class="flex items-center gap-3 bg-bg-alt rounded-xl p-4 border border-brd"><div class="w-4 h-4 rounded-full" style="background:'+w.color+'"></div><div><div class="font-medium text-base text-fg">'+w.name+'</div><div class="text-muted text-sm">Saldo actual: '+fmtCur(w.balance)+'</div></div></div>' +
+    '<div><label class="block text-sm font-medium text-muted mb-1.5 uppercase tracking-wider">Monto a Recargar</label><input id="rc-amount" type="number" step="0.01" min="0.01" class="input-field" placeholder="0.00"></div>' +
+    '<div id="rc-error" class="text-danger-d text-sm hidden"></div>' +
+    '<div class="flex gap-3 justify-end pt-3"><button class="btn btn-ghost" onclick="Modal.close()">Cancelar</button><button class="btn btn-success" onclick="doRecharge(\''+wid+'\')"><i class="fa-solid fa-plus"></i>Recargar</button></div></div>');
 }
 
 function doRecharge(wid) {
@@ -604,13 +604,13 @@ function doRecharge(wid) {
 function showTransferModal(fromId) {
   const wallets = DB.getWallets();
   let optsHTML = wallets.map(w => '<option value="'+w.id+'" '+(w.id===fromId?'selected':'')+'>'+w.name+' ('+fmtCur(w.balance)+')</option>').join('');
-  Modal.show('<h3 class="font-display font-bold text-lg mb-5">Transferir entre Billeteras</h3><div class="space-y-4">' +
-    '<div><label class="block text-xs font-medium text-muted mb-1.5 uppercase tracking-wider">Desde</label><select id="tf-from" class="input-field">'+optsHTML+'</select></div>' +
-    '<div class="text-center"><i class="fa-solid fa-arrow-down text-muted"></i></div>' +
-    '<div><label class="block text-xs font-medium text-muted mb-1.5 uppercase tracking-wider">Hacia</label><select id="tf-to" class="input-field">'+optsHTML+'</select></div>' +
-    '<div><label class="block text-xs font-medium text-muted mb-1.5 uppercase tracking-wider">Monto</label><input id="tf-amount" type="number" step="0.01" min="0.01" class="input-field" placeholder="0.00"></div>' +
-    '<div id="tf-error" class="text-danger text-xs hidden"></div>' +
-    '<div class="flex gap-3 justify-end pt-2"><button class="btn btn-ghost" onclick="Modal.close()">Cancelar</button><button class="btn btn-primary" onclick="doTransfer()"><i class="fa-solid fa-arrow-right-arrow-left"></i>Transferir</button></div></div>');
+  Modal.show('<h3 class="font-display font-bold text-xl text-fg mb-5">Transferir entre Billeteras</h3><div class="space-y-5">' +
+    '<div><label class="block text-sm font-medium text-muted mb-1.5 uppercase tracking-wider">Desde</label><select id="tf-from" class="input-field">'+optsHTML+'</select></div>' +
+    '<div class="text-center"><i class="fa-solid fa-arrow-down text-muted text-xl"></i></div>' +
+    '<div><label class="block text-sm font-medium text-muted mb-1.5 uppercase tracking-wider">Hacia</label><select id="tf-to" class="input-field">'+optsHTML+'</select></div>' +
+    '<div><label class="block text-sm font-medium text-muted mb-1.5 uppercase tracking-wider">Monto</label><input id="tf-amount" type="number" step="0.01" min="0.01" class="input-field" placeholder="0.00"></div>' +
+    '<div id="tf-error" class="text-danger-d text-sm hidden"></div>' +
+    '<div class="flex gap-3 justify-end pt-3"><button class="btn btn-ghost" onclick="Modal.close()">Cancelar</button><button class="btn btn-primary" onclick="doTransfer()"><i class="fa-solid fa-arrow-right-arrow-left"></i>Transferir</button></div></div>');
 }
 
 function doTransfer() {
@@ -630,25 +630,25 @@ function doTransfer() {
 function renderInventory() {
   const p = DB.getProducts();
   $('#content').innerHTML =
-    '<div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6"><div><h2 class="font-display font-bold text-xl">Inventario de Productos</h2><p class="text-muted text-sm">'+p.length+' productos</p></div><button class="btn btn-primary" onclick="showProductModal()"><i class="fa-solid fa-plus"></i>Agregar Producto</button></div>' +
-    '<div class="mb-4"><input id="inv-search" type="text" class="input-field max-w-md" placeholder="Buscar productos..." oninput="filterInv()"></div>' +
+    '<div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6"><div><h2 class="font-display font-bold text-2xl text-fg">Inventario de Productos</h2><p class="text-muted text-base">'+p.length+' productos registrados</p></div><button class="btn btn-primary" onclick="showProductModal()"><i class="fa-solid fa-plus"></i>Agregar Producto</button></div>' +
+    '<div class="mb-5"><input id="inv-search" type="text" class="input-field max-w-md shadow-sm" placeholder="Buscar productos..." oninput="filterInv()"></div>' +
     '<div id="inv-list">' + renderProdList(p) + '</div>';
 }
 
 function renderProdList(p) {
-  if (!p.length) return '<div class="text-center py-16"><i class="fa-solid fa-box-open text-4xl text-muted mb-4 block"></i><p class="text-muted">No hay productos</p></div>';
-  let html = '<div class="grid gap-3">';
+  if (!p.length) return '<div class="text-center py-16"><i class="fa-solid fa-box-open text-5xl text-muted mb-4 block"></i><p class="text-muted text-lg">No hay productos</p></div>';
+  let html = '<div class="grid gap-4">';
   p.forEach(x => {
-    html += '<div class="bg-card border border-brd rounded-xl p-4 flex flex-col sm:flex-row sm:items-center gap-4 hover:border-accent/30 transition-colors" data-name="'+x.name.toLowerCase()+'" data-sku="'+(x.sku||'').toLowerCase()+'">' +
-      '<div class="flex-1 min-w-0"><div class="flex items-center gap-2 mb-1"><h4 class="font-display font-bold text-sm truncate">'+x.name+'</h4>' +
-      (x.stock<10 ? '<span class="badge badge-danger shrink-0">Stock Bajo</span>' : '') + '</div><div class="text-muted text-xs">SKU: '+(x.sku||'N/A')+'</div></div>' +
-      '<div class="flex flex-wrap gap-4 sm:gap-6 text-sm">' +
-        '<div><span class="text-muted text-xs block">Costo</span><span class="font-medium">'+fmtCur(x.costPrice)+'</span></div>' +
-        '<div><span class="text-muted text-xs block">Venta</span><span class="font-medium text-success">'+fmtCur(x.sellingPrice)+'</span></div>' +
-        '<div><span class="text-muted text-xs block">Margen</span><span class="font-medium text-accent">'+Math.round((x.sellingPrice-x.costPrice)/x.sellingPrice*100)+'%</span></div>' +
-        '<div><span class="text-muted text-xs block">Stock</span><span class="font-bold '+(x.stock<10?'text-danger':'text-fg')+'">'+x.stock+'</span></div></div>' +
-      '<div class="flex gap-2"><button class="btn btn-ghost btn-sm" onclick="showProductModal(\''+x.id+'\')"><i class="fa-solid fa-pen text-xs"></i></button>' +
-      '<button class="btn btn-ghost btn-sm text-danger hover:!border-danger/50" onclick="delProduct(\''+x.id+'\')"><i class="fa-solid fa-trash text-xs"></i></button></div></div>';
+    html += '<div class="bg-card border border-brd rounded-xl p-5 flex flex-col sm:flex-row sm:items-center gap-5 hover:border-accent/40 hover:shadow-sm transition-all" data-name="'+x.name.toLowerCase()+'" data-sku="'+(x.sku||'').toLowerCase()+'">' +
+      '<div class="flex-1 min-w-0"><div class="flex items-center gap-3 mb-1"><h4 class="font-display font-bold text-base truncate text-fg">'+x.name+'</h4>' +
+      (x.stock<10 ? '<span class="badge badge-danger shrink-0">Stock Bajo</span>' : '') + '</div><div class="text-muted text-sm">SKU: '+(x.sku||'N/A')+'</div></div>' +
+      '<div class="flex flex-wrap gap-5 sm:gap-8 text-base">' +
+        '<div><span class="text-muted text-sm block">Costo</span><span class="font-medium text-fg">'+fmtCur(x.costPrice)+'</span></div>' +
+        '<div><span class="text-muted text-sm block">Venta</span><span class="font-medium text-success-d">'+fmtCur(x.sellingPrice)+'</span></div>' +
+        '<div><span class="text-muted text-sm block">Margen</span><span class="font-medium text-accent-d">'+Math.round((x.sellingPrice-x.costPrice)/x.sellingPrice*100)+'%</span></div>' +
+        '<div><span class="text-muted text-sm block">Stock</span><span class="font-bold '+(x.stock<10?'text-danger-d':'text-fg')+'">'+x.stock+'</span></div></div>' +
+      '<div class="flex gap-2"><button class="btn btn-ghost btn-sm" onclick="showProductModal(\''+x.id+'\')"><i class="fa-solid fa-pen text-sm"></i></button>' +
+      '<button class="btn btn-ghost btn-sm text-danger-d hover:!border-danger/50 hover:bg-red-50" onclick="delProduct(\''+x.id+'\')"><i class="fa-solid fa-trash text-sm"></i></button></div></div>';
   });
   return html + '</div>';
 }
@@ -660,14 +660,14 @@ function filterInv() {
 
 function showProductModal(id) {
   const p = id ? DB.getProducts().find(x => x.id===id) : null;
-  Modal.show('<h3 class="font-display font-bold text-lg mb-5">'+(p?'Editar':'Agregar')+' Producto</h3><div class="space-y-4">' +
-    '<div><label class="block text-xs font-medium text-muted mb-1.5 uppercase tracking-wider">Nombre</label><input id="pm-name" type="text" class="input-field" value="'+(p?p.name:'')+'"></div>' +
-    '<div><label class="block text-xs font-medium text-muted mb-1.5 uppercase tracking-wider">SKU</label><input id="pm-sku" type="text" class="input-field" value="'+(p?p.sku||'':'')+'"></div>' +
-    '<div class="grid grid-cols-2 gap-4"><div><label class="block text-xs font-medium text-muted mb-1.5 uppercase tracking-wider">Costo</label><input id="pm-cost" type="number" step="0.01" min="0" class="input-field" value="'+(p?p.costPrice:'')+'"></div>' +
-    '<div><label class="block text-xs font-medium text-muted mb-1.5 uppercase tracking-wider">Venta</label><input id="pm-sell" type="number" step="0.01" min="0" class="input-field" value="'+(p?p.sellingPrice:'')+'"></div></div>' +
-    '<div><label class="block text-xs font-medium text-muted mb-1.5 uppercase tracking-wider">Stock</label><input id="pm-stock" type="number" min="0" class="input-field" value="'+(p?p.stock:'')+'"></div>' +
-    '<div id="pm-error" class="text-danger text-xs hidden"></div>' +
-    '<div class="flex gap-3 justify-end pt-2"><button class="btn btn-ghost" onclick="Modal.close()">Cancelar</button>' +
+  Modal.show('<h3 class="font-display font-bold text-xl text-fg mb-5">'+(p?'Editar':'Agregar')+' Producto</h3><div class="space-y-5">' +
+    '<div><label class="block text-sm font-medium text-muted mb-1.5 uppercase tracking-wider">Nombre</label><input id="pm-name" type="text" class="input-field" value="'+(p?p.name:'')+'"></div>' +
+    '<div><label class="block text-sm font-medium text-muted mb-1.5 uppercase tracking-wider">SKU</label><input id="pm-sku" type="text" class="input-field" value="'+(p?p.sku||'':'')+'"></div>' +
+    '<div class="grid grid-cols-2 gap-5"><div><label class="block text-sm font-medium text-muted mb-1.5 uppercase tracking-wider">Costo</label><input id="pm-cost" type="number" step="0.01" min="0" class="input-field" value="'+(p?p.costPrice:'')+'"></div>' +
+    '<div><label class="block text-sm font-medium text-muted mb-1.5 uppercase tracking-wider">Venta</label><input id="pm-sell" type="number" step="0.01" min="0" class="input-field" value="'+(p?p.sellingPrice:'')+'"></div></div>' +
+    '<div><label class="block text-sm font-medium text-muted mb-1.5 uppercase tracking-wider">Stock</label><input id="pm-stock" type="number" min="0" class="input-field" value="'+(p?p.stock:'')+'"></div>' +
+    '<div id="pm-error" class="text-danger-d text-sm hidden"></div>' +
+    '<div class="flex gap-3 justify-end pt-3"><button class="btn btn-ghost" onclick="Modal.close()">Cancelar</button>' +
     '<button class="btn btn-primary" onclick="saveProd(\''+(id||'')+'\')">'+(p?'Actualizar':'Agregar')+'</button></div></div>');
 }
 
@@ -692,15 +692,15 @@ function renderBuyStock() {
   const products = DB.getProducts(), wallets = DB.getWallets();
   let optsHTML = products.map(p => '<option value="'+p.id+'" data-cost="'+p.costPrice+'" data-stock="'+p.stock+'">'+p.name+' (Stock: '+p.stock+')</option>').join('');
   $('#content').innerHTML =
-    '<div class="mb-6"><h2 class="font-display font-bold text-xl">Comprar Stock</h2><p class="text-muted text-sm">Reponga inventario pagando desde una billetera</p></div>' +
-    '<div class="max-w-lg"><div class="bg-card border border-brd rounded-xl p-6 space-y-5">' +
-    '<div><label class="block text-xs font-medium text-muted mb-1.5 uppercase tracking-wider">Producto</label><select id="bs-prod" class="input-field" onchange="updateBuyCost()"><option value="">Seleccione...</option>'+optsHTML+'</select></div>' +
-    '<div class="grid grid-cols-2 gap-4"><div><label class="block text-xs font-medium text-muted mb-1.5 uppercase tracking-wider">Cantidad</label><input id="bs-qty" type="number" min="1" value="1" class="input-field" oninput="updateBuyCost()"></div>' +
-    '<div><label class="block text-xs font-medium text-muted mb-1.5 uppercase tracking-wider">Costo Unitario</label><input id="bs-cost" type="number" step="0.01" min="0" class="input-field" oninput="updateBuyCost()"></div></div>' +
-    '<div class="bg-bg-alt rounded-xl p-4"><div class="flex justify-between text-sm"><span class="text-muted">Total a Pagar</span><span id="bs-total" class="font-display font-bold">$0.00</span></div></div>' +
-    '<div><label class="block text-xs font-medium text-muted mb-1.5 uppercase tracking-wider">Pagar desde</label>'+walletOpts('','bs-wallet')+'</div>' +
-    '<div id="bs-error" class="text-danger text-xs hidden"></div>' +
-    '<button class="btn btn-danger w-full justify-center py-3" onclick="doBuyStock()"><i class="fa-solid fa-truck"></i>Completar Compra</button></div></div>';
+    '<div class="mb-6"><h2 class="font-display font-bold text-2xl text-fg">Comprar Stock</h2><p class="text-muted text-base">Reponga inventario pagando desde una billetera</p></div>' +
+    '<div class="max-w-lg"><div class="bg-card border border-brd rounded-xl p-7 shadow-sm space-y-5">' +
+    '<div><label class="block text-sm font-medium text-muted mb-1.5 uppercase tracking-wider">Producto</label><select id="bs-prod" class="input-field" onchange="updateBuyCost()"><option value="">Seleccione...</option>'+optsHTML+'</select></div>' +
+    '<div class="grid grid-cols-2 gap-5"><div><label class="block text-sm font-medium text-muted mb-1.5 uppercase tracking-wider">Cantidad</label><input id="bs-qty" type="number" min="1" value="1" class="input-field" oninput="updateBuyCost()"></div>' +
+    '<div><label class="block text-sm font-medium text-muted mb-1.5 uppercase tracking-wider">Costo Unitario</label><input id="bs-cost" type="number" step="0.01" min="0" class="input-field" oninput="updateBuyCost()"></div></div>' +
+    '<div class="bg-bg-alt border border-brd rounded-xl p-4"><div class="flex justify-between text-base"><span class="text-muted font-medium">Total a Pagar</span><span id="bs-total" class="font-display font-bold text-fg">$0.00</span></div></div>' +
+    '<div><label class="block text-sm font-medium text-muted mb-1.5 uppercase tracking-wider">Pagar desde</label>'+walletOpts('','bs-wallet')+'</div>' +
+    '<div id="bs-error" class="text-danger-d text-sm hidden"></div>' +
+    '<button class="btn btn-danger w-full justify-center py-3 text-base mt-2" onclick="doBuyStock()"><i class="fa-solid fa-truck"></i>Completar Compra</button></div></div>';
 }
 
 function updateBuyCost() {
@@ -735,30 +735,36 @@ function renderNewSale() {
   const products = DB.getProducts(), wallets = DB.getWallets();
   let prodHTML = renderSaleProd(products);
   $('#content').innerHTML =
-    '<div class="mb-6"><h2 class="font-display font-bold text-xl">Registrar una Venta</h2></div>' +
+    '<div class="mb-6"><h2 class="font-display font-bold text-2xl text-fg">Registrar una Venta</h2></div>' +
     '<div class="grid grid-cols-1 xl:grid-cols-5 gap-6">' +
-      '<div class="xl:col-span-3"><div class="mb-4"><input id="sale-search" type="text" class="input-field" placeholder="Buscar productos..." oninput="filterSaleProd()"></div><div id="sale-products" class="space-y-2 max-h-[55vh] overflow-y-auto pr-1">'+prodHTML+'</div></div>' +
-      '<div class="xl:col-span-2"><div class="bg-card border border-brd rounded-xl p-5 sticky top-20">' +
-        '<h3 class="font-display font-bold text-sm mb-4 flex items-center gap-2"><i class="fa-solid fa-cart-shopping text-accent text-xs"></i>Resumen</h3>' +
-        '<div class="mb-4"><label class="block text-xs font-medium text-muted mb-1.5 uppercase tracking-wider">Recibir en</label>'+walletOpts('','sale-wallet')+'</div>' +
-        '<div id="sale-cart" class="space-y-2 mb-4 min-h-[60px]"><p class="text-muted text-sm text-center py-4">Carrito vacío</p></div>' +
-        '<div class="border-t border-brd pt-4 space-y-2">' +
-          '<div class="flex justify-between text-sm"><span class="text-muted">Total</span><span id="sale-total" class="font-bold text-success">$0.00</span></div>' +
-          '<div class="flex justify-between text-sm"><span class="text-muted">Costo</span><span id="sale-cost" class="font-medium">$0.00</span></div>' +
-          '<div class="flex justify-between text-sm"><span class="text-muted">Ganancia</span><span id="sale-profit" class="font-bold text-accent">$0.00</span></div>' +
+      '<div class="xl:col-span-3"><div class="mb-5"><input id="sale-search" type="text" class="input-field shadow-sm" placeholder="Buscar productos..." oninput="filterSaleProd()"></div><div id="sale-products" class="space-y-3 max-h-[60vh] overflow-y-auto pr-2">'+prodHTML+'</div></div>' +
+      '<div class="xl:col-span-2"><div class="bg-card border border-brd rounded-xl p-6 sticky top-24 shadow-sm">' +
+        '<h3 class="font-display font-bold text-base mb-5 flex items-center gap-2 text-fg"><i class="fa-solid fa-cart-shopping text-accent-d text-sm"></i>Resumen de Venta</h3>' +
+        '<div class="mb-5"><label class="block text-sm font-medium text-muted mb-1.5 uppercase tracking-wider">Recibir en</label>'+walletOpts('','sale-wallet')+'</div>' +
+        '<div id="sale-cart" class="space-y-3 mb-5 min-h-[80px]"><p class="text-muted text-base text-center py-6">Carrito vacío</p></div>' +
+        '<div class="border-t border-brd pt-5 space-y-3">' +
+          '<div class="flex justify-between text-base"><span class="text-muted font-medium">Total</span><span id="sale-total" class="font-bold text-success-d text-lg">$0.00</span></div>' +
+          '<div class="flex justify-between text-sm"><span class="text-muted">Costo Neto</span><span id="sale-cost" class="font-medium text-fg">$0.00</span></div>' +
+          '<div class="flex justify-between text-base"><span class="text-muted font-medium">Ganancia</span><span id="sale-profit" class="font-bold text-accent-d">$0.00</span></div>' +
         '</div>' +
-        '<button id="sale-complete-btn" class="btn btn-success w-full justify-center mt-4 opacity-50 pointer-events-none" onclick="completeSale()"><i class="fa-solid fa-check"></i>Completar Venta</button>' +
+        '<button id="sale-complete-btn" class="btn btn-success w-full justify-center mt-6 py-3 text-base opacity-50 pointer-events-none" onclick="completeSale()"><i class="fa-solid fa-check"></i>Completar Venta</button>' +
       '</div></div></div>';
 }
 
 function renderSaleProd(products) {
   return products.filter(p => p.stock > 0).map(p =>
-    '<div class="bg-card border border-brd rounded-xl p-4 flex items-center gap-4 hover:border-accent/20 transition-colors sale-product" data-name="'+p.name.toLowerCase()+'">' +
-      '<div class="flex-1 min-w-0"><div class="font-medium text-sm truncate">'+p.name+'</div><div class="text-muted text-xs">'+fmtCur(p.sellingPrice)+' · Stock: '+p.stock+'</div></div>' +
-      '<div class="flex items-center gap-2">' +
-        '<input type="number" min="1" max="'+p.stock+'" value="1" class="input-field w-16 text-center text-sm py-1.5 sale-qty" data-id="'+p.id+'">' +
-        '<button class="btn btn-primary btn-sm" onclick="addToCart(\''+p.id+'\')"><i class="fa-solid fa-plus text-xs"></i></button></div></div>'
-  ).join('') || '<p class="text-muted text-sm text-center py-8">Sin stock</p>';
+    '<div class="bg-card border border-brd rounded-xl p-4 flex flex-col sm:flex-row sm:items-center gap-4 hover:border-accent/30 hover:shadow-sm transition-all sale-product" data-name="'+p.name.toLowerCase()+'">' +
+      '<div class="flex-1 min-w-0"><div class="font-medium text-base truncate text-fg">'+p.name+'</div><div class="text-muted text-sm">Base: '+fmtCur(p.sellingPrice)+' · Stock: <span class="font-medium text-fg">'+p.stock+'</span></div></div>' +
+      '<div class="flex items-center gap-2 self-end sm:self-auto">' +
+        '<div class="relative" title="Precio negociado">' +
+          '<span class="absolute left-3 top-1/2 -translate-y-1/2 text-muted text-sm">$</span>' +
+          '<input type="number" step="0.01" min="0" value="'+p.sellingPrice+'" class="input-field w-24 pl-6 pr-2 text-center text-base py-2 sale-price" data-id="'+p.id+'">' +
+        '</div>' +
+        '<input type="number" min="1" max="'+p.stock+'" value="1" class="input-field w-16 text-center text-base py-2 sale-qty" data-id="'+p.id+'" title="Cantidad">' +
+        '<button class="btn btn-primary px-4 py-2" onclick="addToCart(\''+p.id+'\')"><i class="fa-solid fa-plus text-sm"></i></button>' +
+      '</div>' +
+    '</div>'
+  ).join('') || '<p class="text-muted text-base text-center py-8">Sin stock disponible</p>';
 }
 
 function filterSaleProd() {
@@ -769,22 +775,37 @@ function filterSaleProd() {
 function addToCart(pid) {
   const p = DB.getProducts().find(x => x.id===pid);
   if (!p) return;
-  const qty = parseInt(document.querySelector('.sale-qty[data-id="'+pid+'"]')?.value) || 1;
+
+  const qtyInput = document.querySelector('.sale-qty[data-id="'+pid+'"]');
+  const priceInput = document.querySelector('.sale-price[data-id="'+pid+'"]');
+
+  const qty = parseInt(qtyInput?.value) || 1;
+  const negPrice = parseFloat(priceInput?.value);
+  const finalPrice = (isNaN(negPrice) || negPrice < 0) ? p.sellingPrice : negPrice;
+
   if (qty > p.stock) { Toast.show('Solo '+p.stock+' disponibles', 'warn'); return; }
+  
+  if (finalPrice < p.costPrice) { Toast.show('Alerta: Vendiendo por debajo del costo', 'warn'); }
+
   const ex = saleCart.find(c => c.productId===pid);
   if (ex) {
     if (ex.qty+qty > p.stock) { Toast.show('Solo '+(p.stock-ex.qty)+' más', 'warn'); return; }
     ex.qty += qty;
+    ex.sellingPrice = finalPrice; 
   } else {
-    saleCart.push({productId:p.id, name:p.name, costPrice:p.costPrice, sellingPrice:p.sellingPrice, qty});
+    saleCart.push({productId:p.id, name:p.name, costPrice:p.costPrice, sellingPrice:finalPrice, qty});
   }
+  
   updateCartUI();
-  Toast.show('+'+qty+'x '+p.name, 'success');
+  Toast.show('+'+qty+'x '+p.name+' a '+fmtCur(finalPrice), 'success');
+
+  if(qtyInput) qtyInput.value = 1;
+  if(priceInput) priceInput.value = p.sellingPrice;
 }
 
 function updateCartUI() {
   if (!saleCart.length) {
-    $('#sale-cart').innerHTML = '<p class="text-muted text-sm text-center py-4">Carrito vacío</p>';
+    $('#sale-cart').innerHTML = '<p class="text-muted text-base text-center py-6">Carrito vacío</p>';
     $('#sale-total').textContent = '$0.00';
     $('#sale-cost').textContent = '$0.00';
     $('#sale-profit').textContent = '$0.00';
@@ -798,7 +819,7 @@ function updateCartUI() {
     const s = item.sellingPrice * item.qty;
     c += item.costPrice * item.qty;
     t += s;
-    html += '<div class="flex items-center justify-between py-2 border-b border-brd/50 last:border-0"><div class="min-w-0 flex-1"><div class="text-sm font-medium truncate">'+item.name+'</div><div class="text-muted text-xs">'+item.qty+' x '+fmtCur(item.sellingPrice)+'</div></div><div class="flex items-center gap-2"><span class="text-sm font-medium">'+fmtCur(s)+'</span><button class="text-muted hover:text-danger text-xs" onclick="saleCart.splice('+i+',1);updateCartUI()"><i class="fa-solid fa-xmark"></i></button></div></div>';
+    html += '<div class="flex items-center justify-between py-2 border-b border-brd/70 last:border-0"><div class="min-w-0 flex-1"><div class="text-base font-medium truncate text-fg">'+item.name+'</div><div class="text-muted text-sm">'+item.qty+' x '+fmtCur(item.sellingPrice)+'</div></div><div class="flex items-center gap-3"><span class="text-base font-medium text-fg">'+fmtCur(s)+'</span><button class="text-muted hover:text-danger-d text-sm p-1" onclick="saleCart.splice('+i+',1);updateCartUI()"><i class="fa-solid fa-xmark"></i></button></div></div>';
   });
   $('#sale-cart').innerHTML = html;
   $('#sale-total').textContent = fmtCur(t);
@@ -830,14 +851,14 @@ function renderNewExpense() {
   const wallets = DB.getWallets();
   let catsHTML = EXP_CATS.map(c => '<option value="'+c+'">'+c+'</option>').join('');
   $('#content').innerHTML =
-    '<div class="mb-6"><h2 class="font-display font-bold text-xl">Registrar un Gasto</h2></div>' +
-    '<div class="max-w-lg"><div class="bg-card border border-brd rounded-xl p-6 space-y-5">' +
-    '<div><label class="block text-xs font-medium text-muted mb-1.5 uppercase tracking-wider">Categoría</label><select id="exp-cat" class="input-field">'+catsHTML+'</select></div>' +
-    '<div><label class="block text-xs font-medium text-muted mb-1.5 uppercase tracking-wider">Descripción</label><input id="exp-desc" type="text" class="input-field" placeholder="Descripción del gasto"></div>' +
-    '<div><label class="block text-xs font-medium text-muted mb-1.5 uppercase tracking-wider">Monto</label><input id="exp-amount" type="number" step="0.01" min="0.01" class="input-field" placeholder="0.00"></div>' +
-    '<div><label class="block text-xs font-medium text-muted mb-1.5 uppercase tracking-wider">Pagar desde</label>'+walletOpts('','exp-wallet')+'</div>' +
-    '<div id="exp-error" class="text-danger text-xs hidden"></div>' +
-    '<button class="btn btn-danger w-full justify-center py-3" onclick="doExpense()"><i class="fa-solid fa-minus"></i>Registrar Gasto</button></div></div>';
+    '<div class="mb-6"><h2 class="font-display font-bold text-2xl text-fg">Registrar un Gasto</h2></div>' +
+    '<div class="max-w-lg"><div class="bg-card border border-brd rounded-xl p-7 shadow-sm space-y-5">' +
+    '<div><label class="block text-sm font-medium text-muted mb-1.5 uppercase tracking-wider">Categoría</label><select id="exp-cat" class="input-field">'+catsHTML+'</select></div>' +
+    '<div><label class="block text-sm font-medium text-muted mb-1.5 uppercase tracking-wider">Descripción</label><input id="exp-desc" type="text" class="input-field" placeholder="Descripción breve del gasto"></div>' +
+    '<div><label class="block text-sm font-medium text-muted mb-1.5 uppercase tracking-wider">Monto</label><input id="exp-amount" type="number" step="0.01" min="0.01" class="input-field" placeholder="0.00"></div>' +
+    '<div><label class="block text-sm font-medium text-muted mb-1.5 uppercase tracking-wider">Pagar desde</label>'+walletOpts('','exp-wallet')+'</div>' +
+    '<div id="exp-error" class="text-danger-d text-sm hidden"></div>' +
+    '<button class="btn btn-danger w-full justify-center py-3 text-base mt-2" onclick="doExpense()"><i class="fa-solid fa-minus"></i>Registrar Gasto</button></div></div>';
 }
 
 function doExpense() {
@@ -864,29 +885,29 @@ function renderTransactions() {
   ].sort((a,b) => new Date(b.date)-new Date(a.date));
 
   $('#content').innerHTML =
-    '<div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6"><div><h2 class="font-display font-bold text-xl">Historial</h2><p class="text-muted text-sm">'+allTx.length+' transacciones</p></div>' +
-    '<select id="tx-filter" class="input-field w-auto text-sm" onchange="filterTx()"><option value="all">Todos</option><option value="sale">Ventas</option><option value="expense">Gastos</option><option value="purchase">Compras Stock</option></select></div>' +
+    '<div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6"><div><h2 class="font-display font-bold text-2xl text-fg">Historial de Transacciones</h2><p class="text-muted text-base">'+allTx.length+' registros</p></div>' +
+    '<select id="tx-filter" class="input-field w-auto text-base shadow-sm" onchange="filterTx()"><option value="all">Ver Todos</option><option value="sale">Solo Ventas</option><option value="expense">Solo Gastos</option><option value="purchase">Compras Stock</option></select></div>' +
     '<div id="tx-list">' + renderTxList(allTx) + '</div>';
 }
 
 function renderTxList(tx) {
-  if (!tx.length) return '<div class="text-center py-16"><i class="fa-solid fa-receipt text-4xl text-muted mb-4 block"></i><p class="text-muted">Sin transacciones</p></div>';
-  let html = '';
+  if (!tx.length) return '<div class="text-center py-16"><i class="fa-solid fa-receipt text-5xl text-muted mb-4 block"></i><p class="text-muted text-lg">Sin transacciones registradas</p></div>';
+  let html = '<div class="space-y-3">';
   tx.forEach(t => {
     const wC = DB.getWalletColor(t.walletId), wN = DB.getWalletName(t.walletId);
-    const iC = t.type==='sale' ? 'fa-arrow-up text-success' : 'fa-arrow-down text-danger';
-    const aC = t.type==='sale' ? 'text-success' : 'text-danger';
+    const iC = t.type==='sale' ? 'fa-arrow-up text-success-d' : 'fa-arrow-down text-danger-d';
+    const aC = t.type==='sale' ? 'text-success-d' : 'text-danger-d';
     const sign = t.type==='sale' ? '+' : '-';
-    const catBadge = t.category ? '<span class="badge badge-warn">'+t.category+'</span>' : '';
-    const stockBadge = t.type==='purchase' ? '<span class="badge badge-accent">Stock</span>' : '';
-    const profitLine = t.type==='sale' ? '<div class="text-muted text-xs">Gan: '+fmtCur(t.profit)+'</div>' : '';
-    html += '<div class="bg-card border border-brd rounded-xl p-4 flex items-center gap-4 cursor-pointer hover:border-accent/20 transition-colors" onclick="showTxDetail(\''+t.id+'\',\''+t.type+'\')">' +
-      '<div class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style="background:'+wC+'15"><i class="fa-solid '+iC+' text-xs"></i></div>' +
-      '<div class="flex-1 min-w-0"><div class="flex items-center gap-2 flex-wrap"><span class="font-medium text-sm truncate">'+t.desc+'</span>'+catBadge+stockBadge+'</div>' +
-      '<div class="text-muted text-xs">'+fmtDateTime(t.date)+' · <span style="color:'+wC+'">'+wN+'</span></div></div>' +
-      '<div class="text-right shrink-0"><div class="font-display font-bold '+aC+'">'+sign+fmtCur(t.amount)+'</div>'+profitLine+'</div></div>';
+    const catBadge = t.category ? '<span class="badge badge-warn ml-2">'+t.category+'</span>' : '';
+    const stockBadge = t.type==='purchase' ? '<span class="badge badge-accent ml-2">Stock</span>' : '';
+    const profitLine = t.type==='sale' ? '<div class="text-muted text-sm mt-0.5">Gan: '+fmtCur(t.profit)+'</div>' : '';
+    html += '<div class="bg-card border border-brd rounded-xl p-4 flex items-center gap-4 cursor-pointer hover:border-accent/40 hover:shadow-sm transition-all" onclick="showTxDetail(\''+t.id+'\',\''+t.type+'\')">' +
+      '<div class="w-11 h-11 rounded-xl flex items-center justify-center shrink-0" style="background:'+wC+'20"><i class="fa-solid '+iC+' text-sm"></i></div>' +
+      '<div class="flex-1 min-w-0"><div class="flex items-center flex-wrap mb-1"><span class="font-medium text-base truncate text-fg">'+t.desc+'</span>'+catBadge+stockBadge+'</div>' +
+      '<div class="text-muted text-sm">'+fmtDateTime(t.date)+' · <span class="font-medium" style="color:'+wC+'">'+wN+'</span></div></div>' +
+      '<div class="text-right shrink-0"><div class="font-display font-bold text-lg '+aC+'">'+sign+fmtCur(t.amount)+'</div>'+profitLine+'</div></div>';
   });
-  return html;
+  return html + '</div>';
 }
 
 function filterTx() {
@@ -906,37 +927,37 @@ function showTxDetail(id, type) {
     const s = DB.getSales().find(x => x.id===id);
     if (!s) return;
     let itemsHTML = s.items.map(i =>
-      '<div class="flex justify-between py-2 border-b border-brd/50 text-sm"><div><span class="font-medium">'+i.name+'</span> <span class="text-muted">x'+i.qty+'</span></div><span class="font-medium">'+fmtCur(i.sellingPrice*i.qty)+'</span></div>'
+      '<div class="flex justify-between py-2.5 border-b border-brd/70 text-base"><div><span class="font-medium text-fg">'+i.name+'</span> <span class="text-muted">x'+i.qty+'</span></div><span class="font-medium text-fg">'+fmtCur(i.sellingPrice*i.qty)+'</span></div>'
     ).join('');
-    Modal.show('<h3 class="font-display font-bold text-lg mb-1">Detalle de Venta</h3>' +
-      '<p class="text-muted text-xs mb-4">'+fmtDateTime(s.date)+' · <span style="color:'+DB.getWalletColor(s.walletId)+'">'+DB.getWalletName(s.walletId)+'</span></p>' +
-      '<div class="space-y-2 mb-4">'+itemsHTML+'</div>' +
-      '<div class="bg-bg-alt rounded-xl p-4 space-y-1">' +
-      '<div class="flex justify-between text-sm"><span class="text-muted">Total</span><span class="font-bold text-success">'+fmtCur(s.total)+'</span></div>' +
-      '<div class="flex justify-between text-sm"><span class="text-muted">Costo</span><span>'+fmtCur(s.totalCost)+'</span></div>' +
-      '<div class="flex justify-between text-sm"><span class="text-muted">Ganancia</span><span class="font-bold text-accent">'+fmtCur(s.total-s.totalCost)+'</span></div>' +
-      '</div><div class="flex justify-end mt-4"><button class="btn btn-ghost" onclick="Modal.close()">Cerrar</button></div>');
+    Modal.show('<h3 class="font-display font-bold text-xl text-fg mb-1">Detalle de Venta</h3>' +
+      '<p class="text-muted text-sm mb-5">'+fmtDateTime(s.date)+' · Recibido en <span class="font-medium" style="color:'+DB.getWalletColor(s.walletId)+'">'+DB.getWalletName(s.walletId)+'</span></p>' +
+      '<div class="space-y-1 mb-5">'+itemsHTML+'</div>' +
+      '<div class="bg-bg-alt border border-brd rounded-xl p-5 space-y-2">' +
+      '<div class="flex justify-between text-base"><span class="text-muted font-medium">Total</span><span class="font-bold text-success-d text-lg">'+fmtCur(s.total)+'</span></div>' +
+      '<div class="flex justify-between text-sm"><span class="text-muted">Costo Productos</span><span class="text-fg">'+fmtCur(s.totalCost)+'</span></div>' +
+      '<div class="flex justify-between text-base pt-2 border-t border-brd/70"><span class="text-muted font-medium">Ganancia</span><span class="font-bold text-accent-d">'+fmtCur(s.total-s.totalCost)+'</span></div>' +
+      '</div><div class="flex justify-end mt-5"><button class="btn btn-ghost" onclick="Modal.close()">Cerrar</button></div>');
   } else if (type==='expense') {
     const e = DB.getExpenses().find(x => x.id===id);
     if (!e) return;
-    Modal.show('<h3 class="font-display font-bold text-lg mb-1">Detalle de Gasto</h3>' +
-      '<p class="text-muted text-xs mb-4">'+fmtDateTime(e.date)+' · <span style="color:'+DB.getWalletColor(e.walletId)+'">'+DB.getWalletName(e.walletId)+'</span></p>' +
-      '<div class="bg-bg-alt rounded-xl p-4 space-y-1">' +
-      '<div class="flex justify-between text-sm"><span class="text-muted">Categoría</span><span class="badge badge-warn">'+e.category+'</span></div>' +
-      '<div class="flex justify-between text-sm"><span class="text-muted">Descripción</span><span class="font-medium">'+e.description+'</span></div>' +
-      '<div class="flex justify-between text-sm"><span class="text-muted">Monto</span><span class="font-bold text-danger">'+fmtCur(e.amount)+'</span></div>' +
-      '</div><div class="flex justify-end mt-4"><button class="btn btn-ghost" onclick="Modal.close()">Cerrar</button></div>');
+    Modal.show('<h3 class="font-display font-bold text-xl text-fg mb-1">Detalle de Gasto</h3>' +
+      '<p class="text-muted text-sm mb-5">'+fmtDateTime(e.date)+' · Pagado con <span class="font-medium" style="color:'+DB.getWalletColor(e.walletId)+'">'+DB.getWalletName(e.walletId)+'</span></p>' +
+      '<div class="bg-bg-alt border border-brd rounded-xl p-5 space-y-3">' +
+      '<div class="flex justify-between text-base items-center"><span class="text-muted">Categoría</span><span class="badge badge-warn">'+e.category+'</span></div>' +
+      '<div class="flex justify-between text-base"><span class="text-muted">Descripción</span><span class="font-medium text-fg">'+e.description+'</span></div>' +
+      '<div class="flex justify-between text-base pt-3 border-t border-brd/70"><span class="text-muted font-medium">Monto</span><span class="font-bold text-danger-d text-lg">'+fmtCur(e.amount)+'</span></div>' +
+      '</div><div class="flex justify-end mt-5"><button class="btn btn-ghost" onclick="Modal.close()">Cerrar</button></div>');
   } else {
     const p = DB.getPurchases().find(x => x.id===id);
     if (!p) return;
-    Modal.show('<h3 class="font-display font-bold text-lg mb-1">Detalle de Compra</h3>' +
-      '<p class="text-muted text-xs mb-4">'+fmtDateTime(p.date)+' · <span style="color:'+DB.getWalletColor(p.walletId)+'">'+DB.getWalletName(p.walletId)+'</span></p>' +
-      '<div class="bg-bg-alt rounded-xl p-4 space-y-1">' +
-      '<div class="flex justify-between text-sm"><span class="text-muted">Producto</span><span class="font-medium">'+p.productName+'</span></div>' +
-      '<div class="flex justify-between text-sm"><span class="text-muted">Cantidad</span><span>'+p.quantity+'</span></div>' +
-      '<div class="flex justify-between text-sm"><span class="text-muted">Costo Unitario</span><span>'+fmtCur(p.unitCost)+'</span></div>' +
-      '<div class="flex justify-between text-sm"><span class="text-muted">Total</span><span class="font-bold text-danger">'+fmtCur(p.totalCost)+'</span></div>' +
-      '</div><div class="flex justify-end mt-4"><button class="btn btn-ghost" onclick="Modal.close()">Cerrar</button></div>');
+    Modal.show('<h3 class="font-display font-bold text-xl text-fg mb-1">Detalle de Compra de Stock</h3>' +
+      '<p class="text-muted text-sm mb-5">'+fmtDateTime(p.date)+' · Pagado con <span class="font-medium" style="color:'+DB.getWalletColor(p.walletId)+'">'+DB.getWalletName(p.walletId)+'</span></p>' +
+      '<div class="bg-bg-alt border border-brd rounded-xl p-5 space-y-3">' +
+      '<div class="flex justify-between text-base"><span class="text-muted">Producto</span><span class="font-medium text-fg">'+p.productName+'</span></div>' +
+      '<div class="flex justify-between text-base"><span class="text-muted">Cantidad</span><span class="text-fg">'+p.quantity+'</span></div>' +
+      '<div class="flex justify-between text-base"><span class="text-muted">Costo Unitario</span><span class="text-fg">'+fmtCur(p.unitCost)+'</span></div>' +
+      '<div class="flex justify-between text-base pt-3 border-t border-brd/70"><span class="text-muted font-medium">Total Pagado</span><span class="font-bold text-danger-d text-lg">'+fmtCur(p.totalCost)+'</span></div>' +
+      '</div><div class="flex justify-end mt-5"><button class="btn btn-ghost" onclick="Modal.close()">Cerrar</button></div>');
   }
 }
 
@@ -983,34 +1004,36 @@ function renderAnalytics() {
   const lmP = sales.filter(s => s.date.startsWith(lms)).reduce((a,s) => a+(s.total-s.totalCost), 0);
   const lmE = expenses.filter(e => e.date.startsWith(lms)).reduce((a,e) => a+e.amount, 0);
 
-  const pctChange = (cur, prev) => {
-    if (prev <= 0) return 'Sin datos';
+  const pctChange = (cur, prev, inverse=false) => {
+    if (prev <= 0) return 'Sin datos del mes anterior';
     const diff = Math.round((cur-prev)/prev*100);
-    return (cur>=prev?'+':'')+diff+'% vs anterior';
+    const isGood = inverse ? cur<=prev : cur>=prev;
+    const icon = isGood ? '<i class="fa-solid fa-arrow-trend-up"></i>' : '<i class="fa-solid fa-arrow-trend-down"></i>';
+    return `<span class="flex items-center gap-1">${icon} ${Math.abs(diff)}% vs anterior</span>`;
   };
 
   $('#content').innerHTML =
-    '<div class="mb-6"><h2 class="font-display font-bold text-xl">Análisis</h2></div>' +
-    '<div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">' +
-      '<div class="stat-card fade-up fade-up-1" style="--card-accent:#10b981"><div class="text-muted text-xs font-medium uppercase tracking-wider mb-2">Ventas del Mes</div><div class="font-display font-bold text-2xl text-success">'+fmtCur(mS)+'</div><div class="text-xs mt-1 '+(lmS>0?(mS>=lmS?'text-success':'text-danger'):'text-muted')+'">'+pctChange(mS,lmS)+'</div></div>' +
-      '<div class="stat-card fade-up fade-up-2" style="--card-accent:#ef4444"><div class="text-muted text-xs font-medium uppercase tracking-wider mb-2">Gastos del Mes</div><div class="font-display font-bold text-2xl text-danger">'+fmtCur(mE)+'</div><div class="text-xs mt-1 '+(lmE>0?(mE<=lmE?'text-success':'text-danger'):'text-muted')+'">'+pctChange(mE,lmE, true)+'</div></div>' +
-      '<div class="stat-card fade-up fade-up-3" style="--card-accent:#8b5cf6"><div class="text-muted text-xs font-medium uppercase tracking-wider mb-2">Ganancia del Mes</div><div class="font-display font-bold text-2xl text-purple-400">'+fmtCur(mP)+'</div><div class="text-xs mt-1 '+(lmP>0?(mP>=lmP?'text-success':'text-danger'):'text-muted')+'">'+pctChange(mP,lmP)+'</div></div>' +
+    '<div class="mb-6"><h2 class="font-display font-bold text-2xl text-fg">Análisis de Desempeño</h2></div>' +
+    '<div class="grid grid-cols-1 sm:grid-cols-3 gap-5 mb-8">' +
+      '<div class="stat-card fade-up fade-up-1" style="--card-accent:#10b981"><div class="text-muted text-sm font-medium uppercase tracking-wider mb-2">Ventas del Mes</div><div class="font-display font-bold text-3xl text-success-d">'+fmtCur(mS)+'</div><div class="text-sm mt-2 font-medium '+(lmS>0?(mS>=lmS?'text-success-d':'text-danger-d'):'text-muted')+'">'+pctChange(mS,lmS)+'</div></div>' +
+      '<div class="stat-card fade-up fade-up-2" style="--card-accent:#ef4444"><div class="text-muted text-sm font-medium uppercase tracking-wider mb-2">Gastos del Mes</div><div class="font-display font-bold text-3xl text-danger-d">'+fmtCur(mE)+'</div><div class="text-sm mt-2 font-medium '+(lmE>0?(mE<=lmE?'text-success-d':'text-danger-d'):'text-muted')+'">'+pctChange(mE,lmE, true)+'</div></div>' +
+      '<div class="stat-card fade-up fade-up-3" style="--card-accent:#8b5cf6"><div class="text-muted text-sm font-medium uppercase tracking-wider mb-2">Ganancia del Mes</div><div class="font-display font-bold text-3xl text-purple-600">'+fmtCur(mP)+'</div><div class="text-sm mt-2 font-medium '+(lmP>0?(mP>=lmP?'text-success-d':'text-danger-d'):'text-muted')+'">'+pctChange(mP,lmP)+'</div></div>' +
     '</div>' +
-    '<div class="grid grid-cols-1 xl:grid-cols-2 gap-4 mb-6">' +
-      '<div class="stat-card fade-up fade-up-3" style="--card-accent:#10b981"><h3 class="font-display font-bold text-sm mb-4">Tendencia (30 Días)</h3><div style="height:260px"><canvas id="chart-trend"></canvas></div></div>' +
-      '<div class="stat-card fade-up fade-up-4" style="--card-accent:#f59e0b"><h3 class="font-display font-bold text-sm mb-4">Gastos por Categoría</h3><div style="height:260px;display:flex;align-items:center;justify-content:center">'+(catL.length?'<canvas id="chart-cat"></canvas>':'<p class="text-muted text-sm">Sin datos</p>')+'</div></div>' +
+    '<div class="grid grid-cols-1 xl:grid-cols-2 gap-5 mb-6">' +
+      '<div class="stat-card fade-up fade-up-3" style="--card-accent:#10b981"><h3 class="font-display font-bold text-base text-fg mb-5">Tendencia Mensual (30 Días)</h3><div style="height:280px"><canvas id="chart-trend"></canvas></div></div>' +
+      '<div class="stat-card fade-up fade-up-4" style="--card-accent:#f59e0b"><h3 class="font-display font-bold text-base text-fg mb-5">Distribución de Gastos</h3><div style="height:280px;display:flex;align-items:center;justify-content:center">'+(catL.length?'<canvas id="chart-cat"></canvas>':'<p class="text-muted text-base">Sin datos registrados</p>')+'</div></div>' +
     '</div>' +
-    '<div class="grid grid-cols-1 xl:grid-cols-2 gap-4">' +
-      '<div class="stat-card fade-up fade-up-4" style="--card-accent:#3b82f6"><h3 class="font-display font-bold text-sm mb-4">Top Productos</h3><div style="height:260px;display:flex;align-items:center;justify-content:center">'+(topP.length?'<canvas id="chart-prod"></canvas>':'<p class="text-muted text-sm">Sin datos</p>')+'</div></div>' +
-      '<div class="stat-card fade-up fade-up-5" style="--card-accent:#06b6d4"><h3 class="font-display font-bold text-sm mb-4">Balance Neto Diario</h3><div style="height:260px"><canvas id="chart-net"></canvas></div></div>' +
+    '<div class="grid grid-cols-1 xl:grid-cols-2 gap-5">' +
+      '<div class="stat-card fade-up fade-up-4" style="--card-accent:#3b82f6"><h3 class="font-display font-bold text-base text-fg mb-5">Top Productos por Ingresos</h3><div style="height:280px;display:flex;align-items:center;justify-content:center">'+(topP.length?'<canvas id="chart-prod"></canvas>':'<p class="text-muted text-base">Sin datos de ventas</p>')+'</div></div>' +
+      '<div class="stat-card fade-up fade-up-5" style="--card-accent:#06b6d4"><h3 class="font-display font-bold text-base text-fg mb-5">Balance Neto Diario</h3><div style="height:280px"><canvas id="chart-net"></canvas></div></div>' +
     '</div>';
 
   const chartOpts = {
     responsive:true, maintainAspectRatio:false, interaction:{mode:'index',intersect:false},
-    plugins:{legend:{position:'bottom',labels:{color:'#737373',padding:16,usePointStyle:true,pointStyleWidth:8,font:{size:11,...cf}}}},
+    plugins:{legend:{position:'bottom',labels:{color:'#4b5563',padding:16,usePointStyle:true,pointStyleWidth:8,font:{size:13,...cf}}}},
     scales:{
-      x:{grid:{display:false},ticks:{color:'#525252',font:{size:10},maxTicksLimit:8}},
-      y:{grid:{color:'#1a1a1a'},ticks:{color:'#525252',font:{size:10},callback:v=>'$'+v},beginAtZero:true}
+      x:{grid:{display:false},ticks:{color:'#6b7280',font:{size:12},maxTicksLimit:8}},
+      y:{grid:{color:'#e5e7eb'},ticks:{color:'#6b7280',font:{size:12},callback:v=>'$'+v},beginAtZero:true}
     }
   };
 
@@ -1019,8 +1042,8 @@ function renderAnalytics() {
     analyticsCharts.trend = new Chart(c1, {
       type:'line',
       data:{labels:last30.map(d => d.label), datasets:[
-        {label:'Ventas', data:last30.map(d=>d.sales), borderColor:'#10b981', backgroundColor:'rgba(16,185,129,0.08)', fill:true, tension:.4, pointRadius:0, borderWidth:2},
-        {label:'Ganancia', data:last30.map(d=>d.profit), borderColor:'#8b5cf6', backgroundColor:'rgba(139,92,246,0.08)', fill:true, tension:.4, pointRadius:0, borderWidth:2}
+        {label:'Ventas Totales', data:last30.map(d=>d.sales), borderColor:'#10b981', backgroundColor:'rgba(16,185,129,0.1)', fill:true, tension:.4, pointRadius:0, borderWidth:2},
+        {label:'Ganancia Neta', data:last30.map(d=>d.profit), borderColor:'#8b5cf6', backgroundColor:'rgba(139,92,246,0.1)', fill:true, tension:.4, pointRadius:0, borderWidth:2}
       ]},
       options: chartOpts
     });
@@ -1030,10 +1053,10 @@ function renderAnalytics() {
   if (c2 && catL.length) {
     analyticsCharts.cat = new Chart(c2, {
       type:'doughnut',
-      data:{labels:catL, datasets:[{data:catV, backgroundColor:catC.slice(0,catL.length), borderWidth:0, hoverOffset:8}]},
+      data:{labels:catL, datasets:[{data:catV, backgroundColor:catC.slice(0,catL.length), borderWidth:2, borderColor:'#ffffff', hoverOffset:6}]},
       options:{
         responsive:true, maintainAspectRatio:false, cutout:'65%',
-        plugins:{legend:{position:'right',labels:{color:'#a3a3a3', padding:10, usePointStyle:true, pointStyleWidth:8, font:{size:11,...cf}}}}
+        plugins:{legend:{position:'right',labels:{color:'#4b5563', padding:12, usePointStyle:true, pointStyleWidth:8, font:{size:13,...cf}}}}
       }
     });
   }
@@ -1042,13 +1065,13 @@ function renderAnalytics() {
   if (c3 && topP.length) {
     analyticsCharts.prod = new Chart(c3, {
       type:'bar',
-      data:{labels:topP.map(p => p.name), datasets:[{label:'Ingresos',data:topP.map(p => p.revenue), backgroundColor:'rgba(59,130,246,0.7)', borderRadius:6, borderSkipped:false}]},
+      data:{labels:topP.map(p => p.name), datasets:[{label:'Ingresos Generados',data:topP.map(p => p.revenue), backgroundColor:'rgba(59,130,246,0.8)', borderRadius:6, borderSkipped:false}]},
       options:{
         indexAxis:'y', responsive:true, maintainAspectRatio:false,
         plugins:{legend:{display:false}},
         scales:{
-          x:{grid:{color:'#1a1a1a'}, ticks:{color:'#525252', font:{size:10}, callback:v=>'$'+v}},
-          y:{grid:{display:false}, ticks:{color:'#a3a3a3', font:{size:11,...cf}}}
+          x:{grid:{color:'#e5e7eb'}, ticks:{color:'#6b7280', font:{size:12}, callback:v=>'$'+v}},
+          y:{grid:{display:false}, ticks:{color:'#4b5563', font:{size:13,...cf}}}
         }
       }
     });
@@ -1059,17 +1082,17 @@ function renderAnalytics() {
     analyticsCharts.net = new Chart(c4, {
       type:'bar',
       data:{labels:last30.map(d => d.label), datasets:[{
-        label:'Neto',
+        label:'Flujo Neto',
         data:last30.map(d => d.sales-d.expenses),
-        backgroundColor:last30.map(d => (d.sales-d.expenses)>=0 ? 'rgba(6,182,212,0.7)' : 'rgba(239,68,68,0.7)'),
+        backgroundColor:last30.map(d => (d.sales-d.expenses)>=0 ? 'rgba(6,182,212,0.8)' : 'rgba(239,68,68,0.8)'),
         borderRadius:4, borderSkipped:false
       }]},
       options:{
         responsive:true, maintainAspectRatio:false,
         plugins:{legend:{display:false}},
         scales:{
-          x:{grid:{display:false}, ticks:{color:'#525252', font:{size:10}, maxTicksLimit:8}},
-          y:{grid:{color:'#1a1a1a'}, ticks:{color:'#525252', font:{size:10}, callback:v=>'$'+v}}
+          x:{grid:{display:false}, ticks:{color:'#6b7280', font:{size:12}, maxTicksLimit:8}},
+          y:{grid:{color:'#e5e7eb'}, ticks:{color:'#6b7280', font:{size:12}, callback:v=>'$'+v}}
         }
       }
     });
@@ -1080,45 +1103,45 @@ function renderAnalytics() {
 function renderSettings() {
   if (!Auth.user) return;
   $('#content').innerHTML =
-    '<div class="mb-6"><h2 class="font-display font-bold text-xl">Configuración</h2></div>' +
-    '<div class="max-w-lg space-y-6">' +
-      '<div class="bg-card border border-brd rounded-xl p-6"><h3 class="font-display font-bold text-sm mb-4 flex items-center gap-2"><i class="fa-solid fa-user text-accent text-xs"></i>Cuenta</h3>' +
-        '<div class="space-y-3"><div class="flex justify-between py-2 border-b border-brd/50"><span class="text-muted text-sm">Usuario</span><span class="text-sm font-medium">'+Auth.user.username+'</span></div>' +
-        '<div class="flex justify-between py-2"><span class="text-muted text-sm">Creada</span><span class="text-sm">'+fmtDate(Auth.user.createdAt)+'</span></div></div></div>' +
-      '<div class="bg-card border border-brd rounded-xl p-6"><h3 class="font-display font-bold text-sm mb-4 flex items-center gap-2"><i class="fa-solid fa-lock text-accent text-xs"></i>Cambiar Contraseña</h3>' +
-        '<div class="space-y-4">' +
-          '<div><label class="block text-xs font-medium text-muted mb-1.5 uppercase tracking-wider">Actual</label><input id="set-cur" type="password" class="input-field"></div>' +
-          '<div><label class="block text-xs font-medium text-muted mb-1.5 uppercase tracking-wider">Nueva</label><input id="set-new" type="password" class="input-field"></div>' +
-          '<div><label class="block text-xs font-medium text-muted mb-1.5 uppercase tracking-wider">Confirmar</label><input id="set-conf" type="password" class="input-field"></div>' +
-          '<div id="set-err" class="text-danger text-xs hidden"></div>' +
-          '<button class="btn btn-primary" onclick="changePass()"><i class="fa-solid fa-key"></i>Actualizar</button></div></div>' +
-      '<div class="bg-card border border-danger/30 rounded-xl p-6">' +
-        '<h3 class="font-display font-bold text-sm mb-2 flex items-center gap-2 text-danger"><i class="fa-solid fa-triangle-exclamation text-xs"></i>Zona de Peligro</h3>' +
-        '<p class="text-muted text-xs mb-4">Acciones irreversibles.</p>' +
-        '<button class="btn btn-ghost text-danger border-danger/30 hover:!border-danger/60 w-full justify-center" onclick="clearAll()"><i class="fa-solid fa-trash"></i>Borrar Todos los Datos</button></div>' +
-      '<div class="bg-card border border-brd rounded-xl p-6"><h3 class="font-display font-bold text-sm mb-3">Acerca de StockWallet</h3>' +
-        '<p class="text-muted text-xs leading-relaxed">StockWallet es un sistema de control de inventario y gastos. Las ventas acreditan su billetera, los gastos la debitan. La ganancia diaria se calcula como los ingresos por ventas menos el costo neto de los productos vendidos. Todos los datos se almacenan localmente en su navegador usando localStorage. Para despliegue en producción, esto se conectaría a un backend PHP/MySQL con validación del lado del servidor, sentencias SQL preparadas, protección CSRF y gestión de sesiones.</p>' +
-        '<div class="mt-3 text-muted text-xs">Versión 1.0.0</div></div></div>';
+    '<div class="mb-6"><h2 class="font-display font-bold text-2xl text-fg">Configuración del Sistema</h2></div>' +
+    '<div class="max-w-xl space-y-6">' +
+      '<div class="bg-card border border-brd rounded-xl p-7 shadow-sm"><h3 class="font-display font-bold text-base mb-5 flex items-center gap-2 text-fg"><i class="fa-solid fa-user text-accent-d text-sm"></i>Perfil de Cuenta</h3>' +
+        '<div class="space-y-3"><div class="flex justify-between py-3 border-b border-brd/70"><span class="text-muted text-base">Usuario Administrador</span><span class="text-base font-medium text-fg">'+Auth.user.username+'</span></div>' +
+        '<div class="flex justify-between py-3"><span class="text-muted text-base">Fecha de Registro</span><span class="text-base text-fg">'+fmtDate(Auth.user.createdAt)+'</span></div></div></div>' +
+      '<div class="bg-card border border-brd rounded-xl p-7 shadow-sm"><h3 class="font-display font-bold text-base mb-5 flex items-center gap-2 text-fg"><i class="fa-solid fa-lock text-accent-d text-sm"></i>Cambiar Contraseña</h3>' +
+        '<div class="space-y-5">' +
+          '<div><label class="block text-sm font-medium text-muted mb-1.5 uppercase tracking-wider">Contraseña Actual</label><input id="set-cur" type="password" class="input-field"></div>' +
+          '<div><label class="block text-sm font-medium text-muted mb-1.5 uppercase tracking-wider">Nueva Contraseña</label><input id="set-new" type="password" class="input-field"></div>' +
+          '<div><label class="block text-sm font-medium text-muted mb-1.5 uppercase tracking-wider">Confirmar Nueva</label><input id="set-conf" type="password" class="input-field"></div>' +
+          '<div id="set-err" class="text-danger-d text-sm hidden"></div>' +
+          '<button class="btn btn-primary" onclick="changePass()"><i class="fa-solid fa-key"></i>Actualizar Credenciales</button></div></div>' +
+      '<div class="bg-red-50/50 border border-danger/30 rounded-xl p-7">' +
+        '<h3 class="font-display font-bold text-base mb-2 flex items-center gap-2 text-danger-d"><i class="fa-solid fa-triangle-exclamation text-sm"></i>Zona de Peligro</h3>' +
+        '<p class="text-danger-d/80 text-sm mb-5">Las siguientes acciones son irreversibles y eliminarán permanentemente la información local.</p>' +
+        '<button class="btn btn-ghost text-danger-d border-danger/40 hover:!border-danger/70 hover:bg-red-50 w-full justify-center" onclick="clearAll()"><i class="fa-solid fa-trash"></i>Borrar Todos los Datos de Negocio</button></div>' +
+      '<div class="bg-card border border-brd rounded-xl p-7 shadow-sm"><h3 class="font-display font-bold text-base text-fg mb-3">Acerca de StockWallet</h3>' +
+        '<p class="text-muted text-sm leading-relaxed">StockWallet es un sistema de control de inventario y gastos optimizado. Las ventas acreditan su billetera, los gastos la debitan. La ganancia diaria se calcula como los ingresos por ventas menos el costo neto de los productos vendidos. Todos los datos se almacenan de forma segura localmente en su navegador.</p>' +
+        '<div class="mt-4 text-muted text-sm font-medium">Versión 1.1.0 (Tema Claro)</div></div></div>';
 }
 
 async function changePass() {
   const c=$('#set-cur').value, n=$('#set-new').value, f=$('#set-conf').value;
-  if(!c||!n||!f){$('#set-err').textContent='Todos los campos obligatorios';$('#set-err').classList.remove('hidden');return;}
-  if(n.length<6){$('#set-err').textContent='Mínimo 6 caracteres';$('#set-err').classList.remove('hidden');return;}
-  if(n!==f){$('#set-err').textContent='No coinciden';$('#set-err').classList.remove('hidden');return;}
+  if(!c||!n||!f){$('#set-err').textContent='Todos los campos son obligatorios';$('#set-err').classList.remove('hidden');return;}
+  if(n.length<6){$('#set-err').textContent='La contraseña requiere mínimo 6 caracteres';$('#set-err').classList.remove('hidden');return;}
+  if(n!==f){$('#set-err').textContent='Las contraseñas nuevas no coinciden';$('#set-err').classList.remove('hidden');return;}
   const h = await hashPassword(c, Auth.user.salt);
   if (h!==Auth.user.passwordHash){$('#set-err').textContent='Contraseña actual incorrecta';$('#set-err').classList.remove('hidden');return;}
   const ns = genSalt(), nh = await hashPassword(n, ns);
   DB.updateUser(Auth.user.id, {salt:ns, passwordHash:nh});
   Auth.user.salt = ns; Auth.user.passwordHash = nh;
-  Toast.show('Contraseña actualizada', 'success');
+  Toast.show('Contraseña actualizada correctamente', 'success');
   $('#set-cur').value='';$('#set-new').value='';$('#set-conf').value='';$('#set-err').classList.add('hidden');
 }
 
 function clearAll() {
-  Modal.confirm('¿Eliminar TODOS los datos? La cuenta se mantiene.', () => {
+  Modal.confirm('¿Eliminar TODOS los datos operacionales? La cuenta de usuario se mantendrá.', () => {
     ['products','sales','expenses','purchases','walletOps','wallets'].forEach(k => localStorage.removeItem('sw_'+k));
-    DB.init().then(() => { Toast.show('Datos borrados','success'); navigate('dashboard'); });
+    DB.init().then(() => { Toast.show('Datos borrados exitosamente','success'); navigate('dashboard'); });
   });
 }
 
