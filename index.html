@@ -694,19 +694,22 @@ function renderBuyStock() {
   $('#content').innerHTML =
     '<div class="mb-6"><h2 class="font-display font-bold text-2xl text-fg">Comprar Stock</h2><p class="text-muted text-base">Reponga inventario pagando desde una billetera</p></div>' +
     '<div class="max-w-lg"><div class="bg-card border border-brd rounded-xl p-7 shadow-sm space-y-5">' +
-    '<div><label class="block text-sm font-medium text-muted mb-1.5 uppercase tracking-wider">Producto</label><select id="bs-prod" class="input-field" onchange="updateBuyCost()"><option value="">Seleccione...</option>'+optsHTML+'</select></div>' +
-    '<div class="grid grid-cols-2 gap-5"><div><label class="block text-sm font-medium text-muted mb-1.5 uppercase tracking-wider">Cantidad</label><input id="bs-qty" type="number" min="1" value="1" class="input-field" oninput="updateBuyCost()"></div>' +
-    '<div><label class="block text-sm font-medium text-muted mb-1.5 uppercase tracking-wider">Costo Unitario</label><input id="bs-cost" type="number" step="0.01" min="0" class="input-field" oninput="updateBuyCost()"></div></div>' +
+    '<div><label class="block text-sm font-medium text-muted mb-1.5 uppercase tracking-wider">Producto</label><select id="bs-prod" class="input-field" onchange="onBuyProdChange()"><option value="">Seleccione...</option>'+optsHTML+'</select></div>' +
+    '<div class="grid grid-cols-2 gap-5"><div><label class="block text-sm font-medium text-muted mb-1.5 uppercase tracking-wider">Cantidad</label><input id="bs-qty" type="number" min="1" value="1" class="input-field" oninput="recalcBuyTotal()"></div>' +
+    '<div><label class="block text-sm font-medium text-muted mb-1.5 uppercase tracking-wider">Costo Unitario</label><input id="bs-cost" type="number" step="0.01" min="0" class="input-field" oninput="recalcBuyTotal()"></div></div>' +
     '<div class="bg-bg-alt border border-brd rounded-xl p-4"><div class="flex justify-between text-base"><span class="text-muted font-medium">Total a Pagar</span><span id="bs-total" class="font-display font-bold text-fg">$0.00</span></div></div>' +
     '<div><label class="block text-sm font-medium text-muted mb-1.5 uppercase tracking-wider">Pagar desde</label>'+walletOpts('','bs-wallet')+'</div>' +
     '<div id="bs-error" class="text-danger-d text-sm hidden"></div>' +
     '<button class="btn btn-danger w-full justify-center py-3 text-base mt-2" onclick="doBuyStock()"><i class="fa-solid fa-truck"></i>Completar Compra</button></div></div>';
 }
 
-function updateBuyCost() {
+function onBuyProdChange() {
   const sel = $('#bs-prod');
   const opt = sel.selectedOptions[0];
   if (opt && opt.dataset.cost) $('#bs-cost').value = opt.dataset.cost;
+  recalcBuyTotal();
+}
+function recalcBuyTotal() {
   const q = parseInt($('#bs-qty').value)||0, c = parseFloat($('#bs-cost').value)||0;
   $('#bs-total').textContent = fmtCur(q * c);
 }
@@ -867,7 +870,8 @@ function doExpense() {
   if(isNaN(amt)||amt<=0){$('#exp-error').textContent='Monto inválido';$('#exp-error').classList.remove('hidden');return;}
   if(!wid){$('#exp-error').textContent='Seleccione una billetera';$('#exp-error').classList.remove('hidden');return;}
   const w = DB.getWallets().find(x => x.id===wid);
-  if (w && amt > w.balance) Toast.show('Advertencia: excede saldo en '+w.name, 'warn');
+  if (!w || w.balance <= 0) { $('#exp-error').textContent='La billetera no tiene saldo disponible'; $('#exp-error').classList.remove('hidden'); return; }
+  if (amt > w.balance) { $('#exp-error').textContent='Saldo insuficiente en '+w.name+' ('+fmtCur(w.balance)+')'; $('#exp-error').classList.remove('hidden'); return; }
   DB.addExpense({category:cat, description:desc, amount:amt, walletId:wid});
   DB.debitWallet(wid, amt);
   Toast.show('Gasto '+fmtCur(amt)+' de '+DB.getWalletName(wid), 'success');
